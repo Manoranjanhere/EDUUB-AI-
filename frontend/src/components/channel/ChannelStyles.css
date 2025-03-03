@@ -1,0 +1,92 @@
+.channel-header {
+    padding: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--card-bg);
+    margin-top: 64px;
+  }
+  
+  .channel-info {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+  }
+  
+  .channel-avatar {
+    width: 80px !important;
+    height: 80px !important;
+  }
+  
+  .channel-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .channel-name {
+    color: var(--text-primary);
+    margin: 0 !important;
+  }
+  
+  .channel-stats {
+    color: var(--text-secondary);
+  }
+  
+  .channel-description {
+    color: var(--text-secondary);
+    max-width: 600px;
+  }
+  
+  .subscribe-btn {
+    border-radius: 20px !important;
+    padding: 0.5rem 1.5rem !important;
+  }
+  
+  .subscribe-btn.subscribed {
+    background-color: var(--card-bg) !important;
+    border-color: var(--text-secondary) !important;
+    color: var(--text-secondary) !important;
+  }
+  
+  .channel-content {
+    padding: 2rem;
+  }
+  
+  .channel-tabs {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .about-section {
+    color: var(--text-primary);
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .channel-stats-detailed {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  
+  .stat-item {
+    background-color: var(--card-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .stat-item span:first-child {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+  
+  .stat-item span:last-child {
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    font-weight: 500;
+  }

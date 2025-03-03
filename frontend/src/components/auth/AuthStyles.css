@@ -1,0 +1,90 @@
+:root {
+  --yt-red: #ff0000;
+  --yt-dark: #0f0f0f;
+  --yt-text: #ffffff;
+  --yt-gray: #717171;
+}
+
+.auth-paper {
+  margin-top: 64px;
+  background-color: var(--yt-dark) !important;
+  padding: 48px 40px;
+  border-radius: 8px !important;
+}
+
+.auth-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.auth-title {
+  color: var(--yt-text);
+  margin-bottom: 32px !important;
+  font-size: 24px !important;
+  font-weight: 400 !important;
+}
+
+.google-button {
+  color: var(--yt-text) !important;
+  border-color: var(--yt-gray) !important;
+  padding: 10px !important;
+  margin-bottom: 24px !important;
+  text-transform: none !important;
+  font-size: 16px !important;
+}
+
+.auth-divider {
+  width: 100%;
+  color: var(--yt-gray) !important;
+  margin: 24px 0 !important;
+}
+
+.auth-form {
+  width: 100%;
+}
+
+.auth-input {
+  margin-bottom: 16px !important;
+}
+
+.auth-input .MuiInputBase-root {
+  background-color: transparent !important;
+  color: var(--yt-text) !important;
+}
+
+.auth-input .MuiOutlinedInput-notchedOutline {
+  border-color: var(--yt-gray) !important;
+}
+
+.auth-submit-button {
+  background-color: var(--yt-red) !important;
+  padding: 10px !important;
+  margin-top: 16px !important;
+  text-transform: none !important;
+  font-size: 16px !important;
+}
+
+.auth-switch {
+  margin-top: 24px !important;
+  color: var(--yt-gray) !important;
+}
+
+.auth-link {
+  color: #3ea6ff !important;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.auth-error {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 16px;
+  background-color: rgba(255, 0, 0, 0.1);
+  border-radius: 4px;
+  text-align: center;
+}

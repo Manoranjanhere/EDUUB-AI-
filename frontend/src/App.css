@@ -1,0 +1,73 @@
+:root {
+  --background-dark: #0f0f0f;
+  --card-bg: rgba(31, 31, 31, 0.8);
+  --text-primary: #ffffff;
+  --text-secondary: #aaaaaa;
+  --primary-color: #ff0000;
+}
+
+.app {
+  min-height: 100vh;
+  background-color: var(--background-dark);
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  padding-top: 64px;
+  min-height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 64px 20px 20px 20px;
+}
+
+/* Responsive container */
+.content-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Common form styles */
+.form-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+/* Animation classes */
+.fade-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.fade-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.fade-exit {
+  opacity: 1;
+}
+
+.fade-exit-active {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 64px 12px 12px 12px;
+  }
+  
+  .content-container {
+    padding: 0 12px;
+  }
+}

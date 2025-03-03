@@ -1,0 +1,13 @@
+import express from 'express';
+import { auth, teacherAuth } from '../middleware/auth.js';
+import { upload, uploadVideo, getVideos, getVideo, deleteVideo } from '../controllers/videoController.js';
+
+const router = express.Router();
+
+// Important: The order of middleware matters
+router.post('/upload', auth, teacherAuth, upload, uploadVideo);
+router.get('/', getVideos);
+router.get('/:id', getVideo);
+router.delete('/:id', auth, teacherAuth, deleteVideo);
+
+export default router;
