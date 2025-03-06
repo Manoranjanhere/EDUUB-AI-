@@ -37,9 +37,7 @@ const storage = multer.diskStorage({
 
 const uploadMiddleware = multer({
   storage: storage,
-  limits: {
-    fileSize: 100 * 1024 * 1024, // 100MB limit
-  },
+ 
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('video/')) {
       cb(null, true);
@@ -240,16 +238,35 @@ export const uploadVideo = async (req, res) => {
     console.log('✅ Channel updated successfully');
 
    // 8. Store transcript in ChromaDB
-  //  console.log('9. Storing transcript in ChromaDB...');
-  //  const chromaClient = new ChromaDB.ChromaClient();
-  //  const collectionName = `user_${req.user._id}_transcripts`;
-  //  const collection = chromaClient.getOrCreateCollection({ name: collectionName });
-  //  await collection.upsert({
-  //    documents: [transcriptionResult.text],
-  //    ids: [video._id.toString()],
-  //    metadatas: [{ userId: req.user._id.toString() }]
-  //  });
-  //  console.log('✅ Transcript stored in ChromaDB successfully');
+   console.log('9. Storing transcript in ChromaDB...');
+   try {
+     const chromaClient = new ChromaDB.ChromaClient();
+     const collectionName = `user_${req.user._id}_transcripts`;
+     const collection = await chromaClient.getOrCreateCollection({ name: collectionName });
+
+     // Check if the document already exists
+     const results = await collection.get({
+       ids: [video._id.toString()]
+     });
+
+     if (results.ids.length > 0) {
+       // Delete the existing document
+       await collection.delete({
+         ids: [video._id.toString()]
+       });
+     }
+
+     // Add the new document
+     await collection.add({
+       documents: [transcriptionResult.text],
+       ids: [video._id.toString()],
+       metadatas: [{ userId: req.user._id.toString() }]
+     });
+
+     console.log('✅ Transcript stored in ChromaDB successfully');
+   } catch (chromaError) {
+     console.error('❌ ChromaDB storage error:', chromaError);
+   }
 
 
     console.log('🎉 Upload process completed successfully!');
@@ -369,6 +386,21 @@ export const deleteVideo = async (req, res) => {
         console.error('Error deleting audio from Cloudinary:', error);
       }
     }
+
+     // Delete transcript from ChromaDB
+     console.log('Deleting transcript from ChromaDB...');
+     try {
+       const chromaClient = new ChromaDB.ChromaClient();
+       const collectionName = `user_${req.user._id}_transcripts`;
+       const collection = await chromaClient.getOrCreateCollection({ name: collectionName });
+       await collection.delete({
+         ids: [video._id.toString()]
+       });
+       console.log('✅ Transcript deleted from ChromaDB successfully');
+     } catch (chromaError) {
+       console.error('Error deleting transcript from ChromaDB:', chromaError);
+       // Continue with deletion even if ChromaDB delete fails
+     }
 
     // Update channel video count and remove video reference
     await Channel.findOneAndUpdate(

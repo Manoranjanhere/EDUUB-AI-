@@ -47,7 +47,7 @@ try {
 app.use('/api/auth',authRoutes);
 app.use('/api/videos',videoRoutes);
 app.use('/api/qa',qaroutes);
-app.use('/api/channelRoutes',qaroutes);
+app.use('/api/channelRoutes',channelRoutes);
 
 app.use('*', (req, res) => {
     res.status(404).json({

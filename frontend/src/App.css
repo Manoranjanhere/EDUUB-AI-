@@ -4,14 +4,21 @@
   --text-primary: #ffffff;
   --text-secondary: #aaaaaa;
   --primary-color: #ff0000;
+
 }
+
+
 
 .app {
   min-height: 100vh;
   background-color: var(--background-dark);
   display: flex;
   flex-direction: column;
+  align-items: center; /* Center children horizontally */
+  background-color: var(--background-dark);
+
 }
+/* Use a wrapper div instead of absolute positioning */
 
 .main-content {
   padding-top: 64px;
@@ -21,9 +28,17 @@
   align-items: center;
   width: 100%;
   max-width: 1400px;
-  margin: 0 auto;
+  margin: 0 !important; /* Reset any margin */
   padding: 64px 20px 20px 20px;
+  box-sizing: border-box;
+  background-color: var(--background-dark);
+
+  /* Force centering via absolute positioning */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
+
 
 /* Responsive container */
 .content-container {
@@ -65,9 +80,11 @@
 @media (max-width: 768px) {
   .main-content {
     padding: 64px 12px 12px 12px;
+    width: 100%;
   }
   
   .content-container {
     padding: 0 12px;
   }
 }
+
