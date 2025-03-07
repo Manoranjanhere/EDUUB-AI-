@@ -239,17 +239,51 @@ export const uploadVideo = async (req, res) => {
     );
     console.log('✅ Channel updated successfully');
 
-   // 8. Store transcript in ChromaDB
-  //  console.log('9. Storing transcript in ChromaDB...');
-  //  const chromaClient = new ChromaDB.ChromaClient();
-  //  const collectionName = `user_${req.user._id}_transcripts`;
-  //  const collection = chromaClient.getOrCreateCollection({ name: collectionName });
-  //  await collection.upsert({
-  //    documents: [transcriptionResult.text],
-  //    ids: [video._id.toString()],
-  //    metadatas: [{ userId: req.user._id.toString() }]
-  //  });
-  //  console.log('✅ Transcript stored in ChromaDB successfully');
+// 8. Store transcript in ChromaDB
+console.log('9. Storing transcript in ChromaDB...');
+try {
+  // Initialize ChromaDB client with explicit server URL
+  const chromaClient = new ChromaDB.ChromaClient({
+    path: "http://localhost:8000" // Make sure this points to your running ChromaDB server
+  });
+  
+  // Define collection name based on user ID
+  const collectionName = `user_${req.user._id}_transcripts`;
+  console.log(`Using ChromaDB collection: ${collectionName}`);
+  
+  // Get or create collection
+  const collection = await chromaClient.getOrCreateCollection({ name: collectionName });
+  
+  // Check if document with this ID already exists
+  const existingDocs = await collection.get({
+    ids: [video._id.toString()]
+  });
+  
+  if (existingDocs && existingDocs.ids && existingDocs.ids.length > 0) {
+    // Delete existing document if it exists
+    console.log('Existing document found, updating...');
+    await collection.delete({
+      ids: [video._id.toString()]
+    });
+  }
+  
+  // Add the document (since we can't use upsert directly)
+  await collection.add({
+    documents: [transcriptionResult.text],
+    ids: [video._id.toString()],
+    metadatas: [{ 
+      userId: req.user._id.toString(),
+      videoId: video._id.toString(),
+      title: video.title,
+      createdAt: new Date().toISOString()
+    }]
+  });
+  
+  console.log('✅ Transcript stored in ChromaDB successfully');
+} catch (chromaError) {
+  console.error('❌ ChromaDB storage error:', chromaError);
+  // Continue with upload process even if ChromaDB fails
+}
 
 
     console.log('🎉 Upload process completed successfully!');

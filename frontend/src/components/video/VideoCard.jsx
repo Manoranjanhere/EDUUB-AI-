@@ -29,7 +29,7 @@ const VideoCard = ({ video }) => {
               image={video.videoUrl}
               className="video-thumbnail"
             />
-            <div className="video-duration">{video.duration || '0:00'}</div>
+            {/* <div className="video-duration">{video.duration || '0:00'}</div> */}
           </div>
           <CardContent className="video-content">
             <Box sx={{ display: 'flex', gap: 2 }}>

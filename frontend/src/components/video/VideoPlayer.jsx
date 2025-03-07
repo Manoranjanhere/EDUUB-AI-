@@ -7,9 +7,10 @@ import {
   Avatar, 
   Button,
   CircularProgress,
-  Paper
+  Paper,
+  IconButton 
 } from '@mui/material';
-import { ThumbUp, ThumbDown, Share, Mic, MicOff, Delete } from '@mui/icons-material';
+import { ThumbUp, ThumbDown, Share, Mic, MicOff, Delete,PauseCircle } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import './VideoStyles.css';
@@ -20,6 +21,7 @@ const VideoPlayer = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [answer, setAnswer] = useState(null);
   const videoRef = useRef(null);
@@ -112,6 +114,29 @@ const VideoPlayer = () => {
     }
   };
 
+  const toggleSpeech = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (isSpeaking) {
+        // Stop speech
+        await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/qa/stop-speech`,
+          {},
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        setIsSpeaking(false);
+      }
+    } catch (error) {
+      console.error('Error stopping speech:', error);
+    }
+  };
+
   // Updated to accept video as a parameter
   const handleVoiceQuery = async (question, currentVideo = video) => {
     console.log("handleVoiceQuery called with:", {
@@ -149,6 +174,7 @@ const VideoPlayer = () => {
   
       console.log("Response from server:", response.data);
       setAnswer(response.data.data);
+      setIsSpeaking(true);
     } catch (error) {
       console.error('Error getting answer:', error);
       setAnswer(null);
@@ -288,9 +314,20 @@ const VideoPlayer = () => {
                   margin: '16px 0'
                 }}
               >
-                <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
-                  Answer:
-                </Typography>
+                <Box display="flex" alignItems="center" justifyContent="space-between" mb={1}>
+                  <Typography variant="subtitle1" sx={{ color: '#aaa' }}>
+                    Answer:
+                  </Typography>
+                  {isSpeaking && (
+                    <IconButton 
+                      onClick={toggleSpeech} 
+                      color="primary"
+                      aria-label="Stop speech"
+                    >
+                      <PauseCircle />
+                    </IconButton>
+                  )}
+                </Box>
                 <Typography>{answer.answer}</Typography>
               </Paper>
             )}
