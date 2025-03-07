@@ -12,11 +12,34 @@ const groq = new Groq({
 
 // At the top of your file, add this variable to track speech state
 let activeSpeech = null;
+let speechTimeoutCheck = null;
 
 // Initialize ChromaDB client
 const chromaClient = new ChromaDB.ChromaClient({
   path: "http://localhost:8000" // Point to your Docker container
 });
+
+// Function to setup a timeout to check for abandoned speech
+const setupSpeechTimeout = () => {
+  // Clear any existing timeout
+  if (speechTimeoutCheck) {
+    clearTimeout(speechTimeoutCheck);
+  }
+  
+  // Create new timeout - check every 30 seconds if speech is still active
+  speechTimeoutCheck = setTimeout(() => {
+    if (activeSpeech) {
+      console.log('Speech appears to be abandoned (client disconnected), stopping...');
+      say.stop();
+      activeSpeech = null;
+    }
+    // Setup the next check
+    setupSpeechTimeout();
+  }, 30000); // 30 seconds
+};
+
+// Start the check when the server starts
+setupSpeechTimeout();
 
 // Add this function definition
 async function testChromaConnection() {
@@ -72,6 +95,19 @@ export const startSpeech = async (req, res) => {
     console.error('Error starting speech:', error);
     return res.status(500).json({ success: false, error: error.message });
   }
+};
+
+// Add this endpoint for handling beacon requests when page is unloaded
+export const stopSpeechBeacon = (req, res) => {
+  // This endpoint doesn't need authentication for cleanup purposes
+  // It's called by the browser's sendBeacon API when the page is unloaded
+  if (activeSpeech) {
+    say.stop();
+    activeSpeech = null;
+    console.log('Speech stopped by beacon (page unload)');
+  }
+  // Return an empty response - though the client won't process it
+  res.status(204).end();
 };
 
 export const handleQA = async (req, res) => {

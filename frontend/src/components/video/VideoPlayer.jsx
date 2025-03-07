@@ -38,7 +38,6 @@ const VideoPlayer = () => {
   const [transcript, setTranscript] = useState("");
   const [answer, setAnswer] = useState(null);
   const [textQuestion, setTextQuestion] = useState("");
-  // Add this state to track which search type is active
   const [activeSearchType, setActiveSearchType] = useState("general");
   const videoRef = useRef(null);
   const currentVideoRef = useRef(null);
@@ -60,6 +59,36 @@ const VideoPlayer = () => {
       setupSpeechRecognition();
     }
   }, [video, activeSearchType]); // Re-setup when activeSearchType changes
+
+  // Stop speech when component unmounts
+  useEffect(() => {
+    return () => {
+      console.log('Video component unmounting, stopping speech...');
+      stopSpeechOnExit();
+    };
+  }, []);
+  
+  // Add event listener for page close/refresh
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // This runs when the browser window/tab is closed or refreshed
+      if (isSpeaking) {
+        // Use sendBeacon for sync request during unload
+        navigator.sendBeacon(
+          `${import.meta.env.VITE_BACKEND_URL}/qa/stop-speech-beacon`
+        );
+        console.log('Sending beacon to stop speech');
+      }
+    };
+    
+    // Add the event listener
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    // Remove the event listener when component unmounts
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isSpeaking]);
 
   const setupSpeechRecognition = () => {
     if ("webkitSpeechRecognition" in window) {
@@ -96,6 +125,31 @@ const VideoPlayer = () => {
         "using search type:",
         activeSearchType
       );
+    }
+  };
+
+  // Function to stop speech when exiting the component
+  const stopSpeechOnExit = async () => {
+    try {
+      // Only attempt to stop if we believe speech might be playing
+      if (isSpeaking) {
+        const token = localStorage.getItem("token");
+        await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/qa/stop-speech`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        setIsSpeaking(false);
+        console.log('Speech stopped on exit');
+      }
+    } catch (error) {
+      // Just log the error but don't bother the user as they're navigating away
+      console.error('Error stopping speech during exit:', error);
     }
   };
 
@@ -265,6 +319,14 @@ const VideoPlayer = () => {
     // Update the active search type when submitting text query
     setActiveSearchType(searchType);
     handleVoiceQuery(textQuestion, searchType);
+  };
+
+  // Handle closing the video - make sure to stop speech
+  const handleClose = () => {
+    if (isSpeaking) {
+      stopSpeechOnExit();
+    }
+    navigate(-1);
   };
 
   const fetchVideo = async () => {
@@ -567,7 +629,10 @@ const VideoPlayer = () => {
                 >
                   Delete
                 </Button>
-                <Button variant="contained" onClick={() => navigate(-1)}>
+                <Button 
+                  variant="contained" 
+                  onClick={handleClose}
+                >
                   Close
                 </Button>
               </Box>
