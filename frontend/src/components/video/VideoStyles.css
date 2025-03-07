@@ -291,6 +291,31 @@
   animation: pulse 1.5s infinite;
 }
 
+/* Add these styles to your existing file */
+
+.query-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.search-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+}
+
+.query-input {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: white;
+  padding: 10px;
+  font-size: 1rem;
+  width: 100%;
+}
+
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }

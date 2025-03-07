@@ -46,6 +46,34 @@ export const stopSpeech = async (req, res) => {
   }
 };
 
+// Add this function for starting speech
+export const startSpeech = async (req, res) => {
+  try {
+    const { text } = req.body;
+    
+    if (!text) {
+      return res.status(400).json({ success: false, error: 'No text provided' });
+    }
+    
+    // Stop any existing speech
+    if (activeSpeech) {
+      say.stop();
+    }
+    
+    // Start new speech
+    activeSpeech = text;
+    say.speak(text, null, null, (err) => {
+      if (err) console.error('Text-to-speech error:', err);
+      activeSpeech = null;
+    });
+    
+    return res.json({ success: true, message: 'Speech started' });
+  } catch (error) {
+    console.error('Error starting speech:', error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 export const handleQA = async (req, res) => {
   console.log('QA Request received:', {
     body: req.body,
@@ -53,7 +81,7 @@ export const handleQA = async (req, res) => {
     user: req.user?._id
   });
   try {
-    const { question, videoId } = req.body;
+    const { question, videoId, currentTime, searchType = 'general' } = req.body;
     
     // Test ChromaDB connection
     const chromaConnected = await testChromaConnection();
@@ -73,14 +101,55 @@ export const handleQA = async (req, res) => {
     console.log('✅ Video fetched successfully:', {
       videoId: video._id,
       title: video.title,
-      teacherId: video.teacher
+      teacherId: video.teacher,
+      searchType: searchType,
+      currentTime: currentTime // Log the current time for debugging
     });
 
     // 2. Get relevant context from ChromaDB if available
     let context = '';
     
-    if (chromaConnected) {
-      console.log('Querying ChromaDB for relevant transcript parts...');
+    // Handle different search types
+    if (searchType === 'near' && currentTime) {
+      // Near Time: Extract context from around the current timestamp
+      console.log(`🔍 Performing Near Time search around timestamp: ${currentTime}s`);
+      
+      // Use transcript directly from the video document
+      const fullTranscript = video.transcript || '';
+      
+      if (fullTranscript && fullTranscript.length > 0) {
+        // Get approximate word position based on timestamp
+        // Assuming average speaking rate of ~150 words per minute = 2.5 words per second
+        const wordsPerSecond = 2.5;
+        const approxWordPosition = Math.floor(currentTime * wordsPerSecond);
+        
+        // Extract context around the current position
+        const words = fullTranscript.split(/\s+/);
+        
+        // Find starting position, ensuring we don't go below 0
+        // Use exactly 100 words before, as requested
+        const contextStartWord = Math.max(0, approxWordPosition - 100);
+        
+        // Get the context (100 words before + 100 words after = 200 words total)
+        const contextWords = words.slice(contextStartWord, contextStartWord + 200);
+        context = contextWords.join(' ');
+        
+        console.log('✅ Using Near Time context:', {
+          timestamp: currentTime,
+          approximateWordPosition: approxWordPosition,
+          contextLength: context.length,
+          wordCount: contextWords.length,
+          contextStartWord: contextStartWord,
+          transcriptTotalWords: words.length,
+          contextPreview: context.substring(0, 100) + '...'
+        });
+      } else {
+        console.log('⚠️ No transcript available for Near Time search, using empty context');
+        context = '';
+      }
+    } else if (chromaConnected) {
+      // General search: Use ChromaDB for semantic search
+      console.log('🔍 Performing General search using ChromaDB');
       try {
         // Use the teacher's ID for the collection since they own the videos
         const collectionName = `user_${video.teacher}_transcripts`;
@@ -97,7 +166,7 @@ export const handleQA = async (req, res) => {
           console.log('⚠️ Video transcript not found in ChromaDB, falling back to database transcript');
           context = video.transcript || '';
         } else {
-          // Query with distance metrics
+          // General search: Query ChromaDB for relevant parts based on the question
           const results = await collection.query({
             queryTexts: [question],
             nResults: 1,
@@ -112,6 +181,13 @@ export const handleQA = async (req, res) => {
             documentsLength: results.documents && results.documents[0] ? results.documents[0].length : 0
           });
           
+          // Add distance metrics for debugging
+          if (results && results.distances && results.distances[0]) {
+            console.log(`Distance metrics for query "${question.substring(0, 30)}...":`);
+            console.log(`- Closest distance: ${Math.min(...results.distances[0])}`);
+            console.log(`- All distances: ${results.distances[0].join(', ')}`);
+          }
+          
           // Check if results exist AND are semantically relevant
           if (results && 
               results.distances && 
@@ -125,13 +201,13 @@ export const handleQA = async (req, res) => {
             const closestDistance = Math.min(...results.distances[0]);
             
             // Only use results if they're reasonably close (adjust threshold as needed)
-            if (closestDistance < 1.5) {  // Threshold value - will need tuning
+            if (closestDistance < 1.5) {  // Threshold value
               context = results.documents[0].join('\n\n');
               console.log('✅ Found RELEVANT transcript parts in ChromaDB:', {
                 segments: results.documents[0].length,
                 contextLength: context.length,
                 relevanceScore: closestDistance,
-                context:context
+                contextPreview: context.substring(0, 100) + '...'
               });
             } else {
               console.log('⚠️ Results found but NOT RELEVANT enough (distance: ' + closestDistance + '), falling back to full transcript');
@@ -181,27 +257,28 @@ Question: ${question}`;
       data: {
         answer,
         question,
-        usingChroma: chromaConnected
+        searchType,
+        usingChroma: chromaConnected && searchType !== 'near'
       }
     });
     
     // Convert answer to speech
-try {
-  // Only start speech if none is active
-  if (!activeSpeech) {
-    activeSpeech = answer;
-    say.speak(answer, null, null, (err) => {
-      if (err) console.error('Text-to-speech error:', err);
-      // Clear active speech when done
+    try {
+      // Only start speech if none is active
+      if (!activeSpeech) {
+        activeSpeech = answer;
+        say.speak(answer, null, null, (err) => {
+          if (err) console.error('Text-to-speech error:', err);
+          // Clear active speech when done
+          activeSpeech = null;
+        });
+      } else {
+        console.log('Speech already in progress, not starting new speech');
+      }
+    } catch (error) {
+      console.error('Text-to-speech error:', error);
       activeSpeech = null;
-    });
-  } else {
-    console.log('Speech already in progress, not starting new speech');
-  }
-} catch (error) {
-  console.error('Text-to-speech error:', error);
-  activeSpeech = null;
-}
+    }
   } catch (error) {
     console.error('QA Error:', error);
     res.status(500).json({ 
