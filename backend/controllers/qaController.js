@@ -100,7 +100,7 @@ export const handleQA = async (req, res) => {
           // Query with distance metrics
           const results = await collection.query({
             queryTexts: [question],
-            nResults: 3,
+            nResults: 1,
             where_document_ids: [videoId.toString()],
             include: ["distances", "documents", "metadatas"]
           });

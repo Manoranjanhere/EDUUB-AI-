@@ -404,6 +404,29 @@ export const deleteVideo = async (req, res) => {
       }
     }
 
+    try {
+      console.log('Deleting transcript from ChromaDB...');
+      const chromaClient = new ChromaDB.ChromaClient({
+        path: "http://localhost:8000"
+      });
+      
+      // Use the teacher ID for the collection name, same as during upload
+      const collectionName = `user_${video.teacher}_transcripts`;
+      
+      // Try to get the collection
+      const collection = await chromaClient.getCollection({ name: collectionName });
+      
+      // Delete the document by ID
+      await collection.delete({
+        ids: [video._id.toString()]
+      });
+      
+      console.log('✅ Transcript deleted from ChromaDB successfully');
+    } catch (chromaError) {
+      // Don't fail the whole operation if ChromaDB deletion fails
+      console.error('❌ Error deleting transcript from ChromaDB:', chromaError);
+    }
+
     // Update channel video count and remove video reference
     await Channel.findOneAndUpdate(
       { owner: req.user._id },
