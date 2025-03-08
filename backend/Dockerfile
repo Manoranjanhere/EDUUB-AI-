@@ -16,9 +16,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY package*.json ./
 RUN npm install
 
-# Install Python packages in the virtual environment
+# Install Python packages in the virtual environment with compatible versions
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir torch==1.13.1 torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir torch==2.0.1 torchaudio==2.0.2 --extra-index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir numpy==1.23.5 && \
     pip install --no-cache-dir git+https://github.com/openai/whisper.git
 
