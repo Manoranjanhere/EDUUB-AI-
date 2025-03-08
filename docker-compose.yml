@@ -3,6 +3,7 @@ version: '3.8'
 services:
   backend:
     build: ./backend
+    image: eduub_backend:latest
     ports:
       - "5000:5000"
     environment:
@@ -19,6 +20,7 @@ services:
 
   frontend:
     build: ./frontend
+    image: eduub_frontend:latest  
     ports:
       - "5173:5173"
     environment:
