@@ -22,7 +22,7 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - VITE_BACKEND_URL=http://localhost:5000/api
+      - VITE_BACKEND_URL=http://64.227.152.247:5000/api
     networks:
       - app-network
     depends_on:
