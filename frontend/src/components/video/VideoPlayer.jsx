@@ -437,7 +437,7 @@ const VideoPlayer = () => {
                   />
                 </Box>
 
-                {/* Voice query button with search type indicator */}
+                {/* Voice query button with search type indicator - MOBILE RESPONSIVE */}
                 <Button
                   variant="contained"
                   startIcon={isListening ? <MicOff /> : <Mic />}
@@ -450,7 +450,7 @@ const VideoPlayer = () => {
                       ? "#2196f3"
                       : "#9c27b0",
                     color: "white",
-                    padding: "10px 20px",
+                    padding: { xs: "8px 12px", sm: "10px 20px" },
                     margin: "20px 0 10px 0",
                     "&:hover": {
                       backgroundColor: isListening
@@ -461,19 +461,23 @@ const VideoPlayer = () => {
                     },
                   }}
                 >
-                  {isListening
-                    ? "Listening..."
-                    : `Ask (${
-                        activeSearchType === "near"
-                          ? "Near Current Time"
-                          : "General"
-                      })`}
+                    {isListening ? (
+                      "Listening..."
+                    ) : (
+                      `Ask (${activeSearchType === "near" ? "Near Current Time" : "General"})`
+                    )}
                 </Button>
 
-                {/* Text input for questions with search type buttons */}
+                {/* Text input for questions with search type buttons - MOBILE RESPONSIVE */}
                 <Box
                   component="form"
-                  sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}
+                  sx={{ 
+                    display: "flex", 
+                    alignItems: "center", 
+                    mb: 2, 
+                    gap: 1,
+                    flexWrap: { xs: "wrap", sm: "nowrap" }
+                  }}
                 >
                   <input
                     type="text"
@@ -487,51 +491,65 @@ const VideoPlayer = () => {
                       border: "1px solid #444",
                       backgroundColor: "#333",
                       color: "#fff",
+                      width: "100%",
+                      minWidth: "100px"
                     }}
                   />
-                  <Button
-                    variant="contained"
-                    startIcon={<Search />}
-                    onClick={(e) => {
-                      setNearSearch();
-                      handleTextSubmit(e, "near");
-                    }}
-                    sx={{
-                      whiteSpace: "nowrap",
-                      backgroundColor:
-                        activeSearchType === "near" ? "#ff4444" : undefined,
-                      "&:hover": {
+                  <Box sx={{ 
+                    display: "flex", 
+                    gap: 1, 
+                    mt: { xs: 1, sm: 0 }, 
+                    width: { xs: "100%", sm: "auto" },
+                    justifyContent: { xs: "space-between", sm: "flex-start" }
+                  }}>
+                    <Button
+                      variant="contained"
+                      onClick={(e) => {
+                        setNearSearch();
+                        handleTextSubmit(e, "near");
+                      }}
+                      sx={{
+                        whiteSpace: "nowrap",
                         backgroundColor:
-                          activeSearchType === "near" ? "#ff6666" : undefined,
-                      },
-                    }}
-                    title="Search context near current timestamp"
-                  >
-                    Near Time
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    startIcon={<Explore />}
-                    onClick={(e) => {
-                      setGeneralSearch();
-                      handleTextSubmit(e, "general");
-                    }}
-                    sx={{
-                      whiteSpace: "nowrap",
-                      backgroundColor:
-                        activeSearchType === "general" ? "#9c27b0" : undefined,
-                      "&:hover": {
+                          activeSearchType === "near" ? "#ff4444" : undefined,
+                        "&:hover": {
+                          backgroundColor:
+                            activeSearchType === "near" ? "#ff6666" : undefined,
+                        },
+                        flex: { xs: 1, sm: "auto" },
+                        fontSize: { xs: "0.85rem", sm: "0.875rem" }
+                      }}
+                      title="Search context near current timestamp"
+                      startIcon={<Search />}
+                    >
+                      Near Time
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      onClick={(e) => {
+                        setGeneralSearch();
+                        handleTextSubmit(e, "general");
+                      }}
+                      sx={{
+                        whiteSpace: "nowrap",
                         backgroundColor:
-                          activeSearchType === "general"
-                            ? "#7b1fa2"
-                            : undefined,
-                      },
-                    }}
-                    title="Search the entire transcript"
-                  >
-                    General
-                  </Button>
+                          activeSearchType === "general" ? "#9c27b0" : undefined,
+                        "&:hover": {
+                          backgroundColor:
+                            activeSearchType === "general"
+                              ? "#7b1fa2"
+                              : undefined,
+                        },
+                        flex: { xs: 1, sm: "auto" },
+                        fontSize: { xs: "0.85rem", sm: "0.875rem" }
+                      }}
+                      title="Search the entire transcript"
+                      startIcon={<Explore />}
+                    >
+                      General
+                    </Button>
+                  </Box>
                 </Box>
 
                 {transcript && (
