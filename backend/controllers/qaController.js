@@ -16,7 +16,7 @@ let speechTimeoutCheck = null;
 
 // Initialize ChromaDB client
 const chromaClient = new ChromaDB.ChromaClient({
-  path: "http://localhost:8000" // Point to your Docker container
+  path: process.env.CHROMA_URL || "http://localhost:8000" // Point to your Docker container
 });
 
 // Function to setup a timeout to check for abandoned speech
