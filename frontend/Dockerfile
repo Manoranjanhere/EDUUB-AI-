@@ -1,21 +1,25 @@
-FROM node:18-slim
+FROM node:18-slim AS build
 
 WORKDIR /app
-
 COPY package*.json ./
 RUN npm install
 COPY . .
 
-# Build for production
+# Create .env file with environment variables
+RUN echo "VITE_BACKEND_URL=https://eduubserver.mano.systems/api" > .env
+
+# Build the app
 RUN npm run build
 
-# Install a static server to serve the build
-RUN npm install -g serve
+# Production stage using Nginx for serving static files
+FROM nginx:alpine
 
-# Environment variable for backend URL
-ENV VITE_BACKEND_URL=https://eduubserver.mano.systems/api
+# Copy built files
+COPY --from=build /app/dist /usr/share/nginx/html
 
-EXPOSE 5173
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Use serve to host the built app
-CMD ["serve", "-s", "dist", "-l", "5173"]
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
