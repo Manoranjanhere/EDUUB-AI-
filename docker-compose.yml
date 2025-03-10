@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build: ./backend
@@ -17,7 +15,6 @@ services:
       - CLOUDINARY_API_KEY=869282847493747
       - CLOUDINARY_API_SECRET=bzjlOOEJhvzz5TnxPeLFk5nVbaU
       - GROQ_API_KEY=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
-    # Use bind mount instead of volume for simpler debugging
     volumes:
       - ./backend/temp:/app/controllers/temp
     depends_on:
@@ -47,7 +44,6 @@ services:
     container_name: eduub-chromadb
     ports:
       - "8000:8000"
-    # Use bind mount instead of volume
     volumes:
       - ./chroma-data:/chroma/chroma
     environment:
@@ -58,5 +54,4 @@ services:
 
 networks:
   app-network:
-    name: eduub-network
     driver: bridge
