@@ -30,7 +30,7 @@ services:
     image: eduub_frontend:latest
     container_name: eduub-frontend
     ports:
-      - "5173:5173"
+      - "5173:80"
     environment:
       - VITE_BACKEND_URL=https://eduubserver.mano.systems/api
     depends_on:
