@@ -20,13 +20,27 @@ const app = express();
 
 //middleware
 app.use(cors({
-  origin: [
-    'http://64.227.152.247:5173', 
-    'http://localhost:5173',
-    'https://eduub.mano.systems',
-    'https://eduubserver.mano.systems'
-  ],
-    credentials: true
+  origin: function(origin, callback) {
+    const allowedOrigins = [
+      'http://64.227.152.247:5173', 
+      'http://localhost:5173',
+      'https://eduub.mano.systems',
+      'https://eduubserver.mano.systems'
+    ];
+    
+    // Allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(null, false);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Authorization', 'Content-Type', 'Accept', 'Origin', 'X-Requested-With']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

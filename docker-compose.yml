@@ -33,6 +33,7 @@ services:
       - "5173:80"
     environment:
       - VITE_BACKEND_URL=https://eduubserver.mano.systems/api
+      - CORS_ORIGINS=http://64.227.152.247:5173,http://localhost:5173,https://eduub.mano.systems,https://eduubserver.mano.systems
     depends_on:
       - backend
     networks:
