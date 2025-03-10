@@ -11,12 +11,18 @@ services:
       - CHROMA_URL=http://chromadb:8000
       - JWT_SECRET=manoranjanheremano
       - PORT=5000
+      - CORS_ORIGINS=http://64.227.152.247:5173,http://localhost:5173,https://eduub.mano.systems,https://eduubserver.mano.systems
+      - CLOUDINARY_CLOUD_NAME=dko27wuzc
+      - CLOUDINARY_API_KEY=869282847493747
+      - CLOUDINARY_API_SECRET=bzjlOOEJhvzz5TnxPeLFk5nVbaU
+      - GROQ_API_KEY=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
     volumes:
       - backend_data:/app/controllers/temp
     depends_on:
       - chromadb
     networks:
       - app-network
+    restart: unless-stopped
 
   frontend:
     build: ./frontend
@@ -24,11 +30,12 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - VITE_BACKEND_URL=http://64.227.152.247:5000/api
+      - VITE_BACKEND_URL=https://eduubserver.mano.systems/api
     networks:
       - app-network
     depends_on:
       - backend
+    restart: unless-stopped
 
   chromadb:
     image: ghcr.io/chroma-core/chroma:latest
@@ -40,6 +47,7 @@ services:
       - PERSIST_DIRECTORY=/chroma/chroma
     networks:
       - app-network
+    restart: unless-stopped
 
 networks:
   app-network:

@@ -20,8 +20,13 @@ const app = express();
 
 //middleware
 app.use(cors({
-  origin: ['http://64.227.152.247:5173', 'http://localhost:5173'],
-  credentials: true
+  origin: [
+    'http://64.227.152.247:5173', 
+    'http://localhost:5173',
+    'https://eduub.mano.systems',
+    'https://eduubserver.mano.systems'
+  ],
+    credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
