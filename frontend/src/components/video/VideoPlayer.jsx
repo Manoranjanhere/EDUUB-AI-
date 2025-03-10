@@ -639,14 +639,18 @@ const VideoPlayer = () => {
                   pt: 2,
                 }}
               >
-                <Button
-                  variant="contained"
-                  color="error"
-                  startIcon={<Delete />}
-                  onClick={() => handleDeleteVideo(video._id)}
-                >
-                  Delete
-                </Button>
+                  {video && video.teacher && 
+    localStorage.getItem('user') && 
+    JSON.parse(localStorage.getItem('user')).id === video.teacher._id && (
+      <Button
+        variant="contained"
+        color="error"
+        startIcon={<Delete />}
+        onClick={() => handleDeleteVideo(video._id)}
+      >
+        Delete
+      </Button>
+  )}
                 <Button 
                   variant="contained" 
                   onClick={handleClose}

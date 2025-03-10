@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
-import { Tabs, Tab, Box } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Tabs, Tab, Box, Typography } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import VideoList from '../video/VideoList';
 import './ChannelStyles.css';
 
 const ChannelInfo = ({ channel }) => {
-
   const [activeTab, setActiveTab] = useState(0);
+
+  useEffect(() => {
+    // Log channel data to debug
+    console.log("Channel data:", channel);
+  }, [channel]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -35,24 +39,29 @@ const ChannelInfo = ({ channel }) => {
             <VideoList teacherId={channel?._id} />
           ) : (
             <Box className="about-section">
-              <h3>About {channel?.channelName}</h3>
-              <p>{channel?.channelDescription}</p>
-              <div className="channel-stats-detailed">
-                <div className="stat-item">
-                  <span>Joined</span>
-                  <span>{new Date(channel?.createdAt).toLocaleDateString()}</span>
-                </div>
-                <div className="stat-item">
-                  <span>Total Views</span>
-                  <span>{channel?.totalViews || 0}</span>
-                </div>
-                <div className="stat-item">
-                  <span>Subscribers</span>
-                  <span>{channel?.subscribers || 0}</span>
-                </div>
-              </div>
+              <Typography variant="h5">About {channel?.channelName}</Typography>
+              <Typography variant="body1">{channel?.description || "No description available."}</Typography>
+              <Box className="channel-stats-detailed" sx={{ mt: 3 }}>
+                <Box className="stat-item">
+                  <Typography variant="subtitle2">Joined</Typography>
+                  <Typography variant="body1">
+                    {channel?.createdAt ? new Date(channel.createdAt).toLocaleDateString() : "N/A"}
+                  </Typography>
+                </Box>
+                <Box className="stat-item">
+                  <Typography variant="subtitle2">Total Views</Typography>
+                  <Typography variant="body1">{channel?.totalViews || 0}</Typography>
+                </Box>
+                <Box className="stat-item">
+                  <Typography variant="subtitle2">Subscribers</Typography>
+                  <Typography variant="body1">{channel?.subscriberCount || 0}</Typography>
+                </Box>
+                <Box className="stat-item">
+                  <Typography variant="subtitle2">Videos</Typography>
+                  <Typography variant="body1">{channel?.videoCount || 0}</Typography>
+                </Box>
+              </Box>
             </Box>
-            
           )}
         </motion.div>
       </AnimatePresence>

@@ -332,19 +332,26 @@ export const getVideos = async (req, res) => {
       };
     }
 
+    // If channelId is provided, find videos for this specific channel
     if (channelId) {
       const channel = await Channel.findById(channelId);
       if (channel) {
         query.teacher = channel.owner;
+      } else {
+        // If direct teacher ID is provided
+        query.teacher = channelId;
       }
     }
+
 
     const videos = await Video.find(query)
       .populate('teacher', 'username channelName profileImage')
       .sort({ createdAt: -1 });
 
+    
     res.json({ success: true, data: videos });
   } catch (error) {
+    console.error("Error in getVideos:", error);
     res.status(400).json({ error: error.message });
   }
 };

@@ -20,26 +20,26 @@ const chromaClient = new ChromaDB.ChromaClient({
 });
 
 // Function to setup a timeout to check for abandoned speech
-const setupSpeechTimeout = () => {
-  // Clear any existing timeout
-  if (speechTimeoutCheck) {
-    clearTimeout(speechTimeoutCheck);
-  }
+// const setupSpeechTimeout = () => {
+//   // Clear any existing timeout
+//   if (speechTimeoutCheck) {
+//     clearTimeout(speechTimeoutCheck);
+//   }
   
-  // Create new timeout - check every 30 seconds if speech is still active
-  speechTimeoutCheck = setTimeout(() => {
-    if (activeSpeech) {
-      console.log('Speech appears to be abandoned (client disconnected), stopping...');
-      say.stop();
-      activeSpeech = null;
-    }
-    // Setup the next check
-    setupSpeechTimeout();
-  }, 30000); // 30 seconds
-};
+//   // Create new timeout - check every 30 seconds if speech is still active
+//   speechTimeoutCheck = setTimeout(() => {
+//     if (activeSpeech) {
+//       console.log('Speech appears to be abandoned (client disconnected), stopping...');
+//       say.stop();
+//       activeSpeech = null;
+//     }
+//     // Setup the next check
+//     setupSpeechTimeout();
+//   }, 30000); // 30 seconds
+// };
 
-// Start the check when the server starts
-setupSpeechTimeout();
+// // Start the check when the server starts
+// setupSpeechTimeout();
 
 // Add this function definition
 async function testChromaConnection() {
@@ -113,8 +113,6 @@ export const stopSpeechBeacon = (req, res) => {
 export const handleQA = async (req, res) => {
   console.log('QA Request received:', {
     body: req.body,
-    headers: req.headers,
-    user: req.user?._id
   });
   try {
     const { question, videoId, currentTime, searchType = 'general' } = req.body;
@@ -177,7 +175,7 @@ export const handleQA = async (req, res) => {
           wordCount: contextWords.length,
           contextStartWord: contextStartWord,
           transcriptTotalWords: words.length,
-          contextPreview: context.substring(0, 100) + '...'
+          contextPreview: context
         });
       } else {
         console.log('⚠️ No transcript available for Near Time search, using empty context');
@@ -243,7 +241,7 @@ export const handleQA = async (req, res) => {
                 segments: results.documents[0].length,
                 contextLength: context.length,
                 relevanceScore: closestDistance,
-                contextPreview: context.substring(0, 100) + '...'
+                contextPreview: context
               });
             } else {
               console.log('⚠️ Results found but NOT RELEVANT enough (distance: ' + closestDistance + '), falling back to full transcript');

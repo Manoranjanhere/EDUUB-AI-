@@ -7,7 +7,8 @@ import VideoCard from './VideoCard';
 import SearchBar from '../common/SearchBar';
 import './VideoStyles.css';
 
-const VideoList = () => {
+// Add teacherId as a prop with default value of null
+const VideoList = ({ teacherId = null }) => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,9 +21,13 @@ const VideoList = () => {
   const modalRef = useRef(null);
 
   useEffect(() => {
+    console.log('VideoList mounted with teacherId:', teacherId);
+    setVideos([]);
+    setLoading(true);
+    setError(null);
     fetchVideos();
     setupSpeechRecognition();
-  }, []);
+  }, [teacherId]); // teacherId dependency will trigger refetch when it changes
 
   const setupSpeechRecognition = () => {
     if ('webkitSpeechRecognition' in window) {
@@ -136,20 +141,45 @@ const VideoList = () => {
     }
   };
 
-  const fetchVideos = async (searchQuery = '') => {
+  const fetchVideos = async (searchTerm = searchQuery) => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/videos`, {
-        params: { search: searchQuery },
+      
+      // Build URL with params based on context
+      let url = `${import.meta.env.VITE_BACKEND_URL}/videos`;
+      const token = localStorage.getItem('token');
+      
+      // Create base request config
+      const requestConfig = {
+        params: { search: searchTerm },
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: token ? `Bearer ${token}` : undefined
         }
-      });
-      setVideos(response.data.data);
+      };
+      
+      // If teacherId is provided, add it as channelId parameter
+      if (teacherId) {
+        console.log('Filtering videos by teacherId:', teacherId);
+        requestConfig.params.channelId = teacherId;
+      }
+      
+      console.log('Fetching videos with config:', requestConfig);
+      
+      const response = await axios.get(url, requestConfig);
+      
+      if (response.data && response.data.data) {
+        setVideos(response.data.data);
+        console.log('Videos loaded:', response.data.data.length);
+      } else {
+        console.warn('Unexpected API response format:', response.data);
+        setVideos([]);
+      }
+      
       setError(null);
     } catch (error) {
-      setError('Failed to fetch videos');
       console.error('Error fetching videos:', error);
+      setError('Failed to fetch videos');
+      setVideos([]);
     } finally {
       setLoading(false);
     }
@@ -167,21 +197,28 @@ const VideoList = () => {
     setQueryError(null);
   };
 
+  // Cleaned up duplicate condition checks
   if (loading) {
     return (
-      <div className="loader-container">
+      <Box sx={{ display: 'flex', justifyContent: 'center', padding: 3 }}>
         <CircularProgress />
-      </div>
+      </Box>
     );
   }
 
   if (error) {
     return (
-      <Container>
-        <Typography color="error" align="center" sx={{ mt: 4 }}>
-          {error}
-        </Typography>
-      </Container>
+      <Box sx={{ textAlign: 'center', padding: 3 }}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
+  }
+
+  if (videos.length === 0) {
+    return (
+      <Box sx={{ textAlign: 'center', padding: 3 }}>
+        <Typography>No videos available</Typography>
+      </Box>
     );
   }
 
@@ -287,14 +324,19 @@ const VideoList = () => {
                   </Box>
 
                   <Box className="modal-actions">
-                    <Button
-                      variant="contained"
-                      color="error"
-                      startIcon={<Delete />}
-                      onClick={() => handleDeleteVideo(selectedVideo._id)}
-                    >
-                      Delete
-                    </Button>
+                    {/* Only show delete button to video owner */}
+                    {selectedVideo && 
+                      localStorage.getItem('user') && 
+                      JSON.parse(localStorage.getItem('user')).id === selectedVideo.teacher?._id && (
+                        <Button
+                          variant="contained"
+                          color="error"
+                          startIcon={<Delete />}
+                          onClick={() => handleDeleteVideo(selectedVideo._id)}
+                        >
+                          Delete
+                        </Button>
+                    )}
                     <Button
                       variant="contained"
                       color="primary"
