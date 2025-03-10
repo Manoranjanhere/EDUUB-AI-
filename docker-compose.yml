@@ -11,7 +11,7 @@ services:
       - CHROMA_URL=http://chromadb:8000
       - JWT_SECRET=manoranjanheremano
       - PORT=5000
-      - CORS_ORIGINS=http://64.227.152.247:5173,http://localhost:5173,https://eduub.mano.systems,https://eduubserver.mano.systems
+      - CORS_ORIGINS=http://64.227.152.247:5173,http://localhost:5173,https://eduub.mano.systems
       - CLOUDINARY_CLOUD_NAME=dko27wuzc
       - CLOUDINARY_API_KEY=869282847493747
       - CLOUDINARY_API_SECRET=bzjlOOEJhvzz5TnxPeLFk5nVbaU
@@ -25,16 +25,18 @@ services:
     restart: unless-stopped
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     image: eduub_frontend:latest  
     ports:
-      - "5173:5173"
+      - "5173:80"
     environment:
       - VITE_BACKEND_URL=https://eduubserver.mano.systems/api
-    networks:
-      - app-network
     depends_on:
       - backend
+    networks:
+      - app-network
     restart: unless-stopped
 
   chromadb:
