@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Grid, Container, Typography, CircularProgress, Button, Box, Modal, Paper } from '@mui/material';
@@ -6,8 +7,9 @@ import axios from 'axios';
 import VideoCard from './VideoCard';
 import SearchBar from '../common/SearchBar';
 import './VideoStyles.css';
+import api from '../../utils/api';
 
-// Add teacherId as a prop with default value of null
+const response = await api.get('/videos', { params: requestConfig.params });
 const VideoList = ({ teacherId = null }) => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,127 +65,130 @@ const VideoList = ({ teacherId = null }) => {
     }
   };
 
-  const handleVoiceQuery = async (question) => {
-    console.log('Attempting to send question:', question);
-    setQueryError(null);
+// 1. First, update the handleVoiceQuery function (around line 85):
+const handleVoiceQuery = async (question) => {
+  console.log('Attempting to send question:', question);
+  setQueryError(null);
+  
+  if (!selectedVideo || !question) {
+    console.error('Missing video or question:', { 
+      videoId: selectedVideo?._id, 
+      question 
+    });
+    setQueryError("Missing video or question");
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setQueryError("Please login to ask questions");
+      return;
+    }
+    console.log('Sending QA request:', {
+      videoId: selectedVideo._id,
+      question: question,
+      token: token ? 'Present' : 'Missing'
+    });
     
-    if (!selectedVideo || !question) {
-      console.error('Missing video or question:', { 
-        videoId: selectedVideo?._id, 
-        question 
-      });
-      setQueryError("Missing video or question");
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setQueryError("Please login to ask questions");
-        return;
-      }
-      console.log('Sending QA request:', {
+    // Replace the variable URL with direct production URL
+    const response = await axios.post(
+      'https://eduubserver.mano.systems/api/qa',
+      {
         videoId: selectedVideo._id,
-        question: question,
-        token: token ? 'Present' : 'Missing'
-      });
-      
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/qa`,
-        {
-          videoId: selectedVideo._id,
-          question: question
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
-      
-      console.log("Response:", response.data);
-      setAnswer(response.data.data);
-    } catch (error) {
-      console.error('Error getting answer:', error);
-      setQueryError(error.response?.data?.error || 'Failed to get answer');
-      setAnswer(null);
-    }
-  };
-
-  useEffect(() => {
-    if (transcript && selectedVideo) {
-      handleVoiceQuery(transcript);
-    }
-  }, [transcript, selectedVideo]);
-
-  const handleDeleteVideo = async (videoId) => {
-    if (!window.confirm('Are you sure you want to delete this video?')) {
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('token');
-      await axios.delete(
-        `${import.meta.env.VITE_BACKEND_URL}/videos/${videoId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
-
-      setVideos(videos.filter(v => v._id !== videoId));
-      closeModal();
-    } catch (error) {
-      console.error('Delete Error:', error);
-      alert(error.response?.data?.error || 'Failed to delete video');
-    }
-  };
-
-  const fetchVideos = async (searchTerm = searchQuery) => {
-    try {
-      setLoading(true);
-      
-      // Build URL with params based on context
-      let url = `${import.meta.env.VITE_BACKEND_URL}/videos`;
-      const token = localStorage.getItem('token');
-      
-      // Create base request config
-      const requestConfig = {
-        params: { search: searchTerm },
+        question: question
+      },
+      {
         headers: {
-          Authorization: token ? `Bearer ${token}` : undefined
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
+      }
+    );
+    
+    console.log("Response:", response.data);
+    setAnswer(response.data.data);
+  } catch (error) {
+    console.error('Error getting answer:', error);
+    setQueryError(error.response?.data?.error || 'Failed to get answer');
+    setAnswer(null);
+  }
+};
+
+// 2. Update the handleDeleteVideo function (around line 120):
+const handleDeleteVideo = async (videoId) => {
+  if (!window.confirm('Are you sure you want to delete this video?')) {
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('token');
+    // Replace the variable URL with direct production URL
+    await axios.delete(
+      `https://eduubserver.mano.systems/api/videos/${videoId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+
+    setVideos(videos.filter(v => v._id !== videoId));
+    closeModal();
+  } catch (error) {
+    console.error('Delete Error:', error);
+    alert(error.response?.data?.error || 'Failed to delete video');
+  }
+};
+
+// 3. Update the fetchVideos function (around line 140):
+const fetchVideos = async (searchTerm = searchQuery) => {
+  try {
+    setLoading(true);
+    
+    // Replace the variable URL with direct production URL
+    const url = 'https://eduubserver.mano.systems/api/videos';
+    const token = localStorage.getItem('token');
+    
+    // Create base request config with proper Authorization header
+    const requestConfig = {
+      params: { search: searchTerm }
+    };
+    
+    // Only add Authorization header if token exists
+    if (token) {
+      requestConfig.headers = {
+        'Authorization': `Bearer ${token}`
       };
-      
-      // If teacherId is provided, add it as channelId parameter
-      if (teacherId) {
-        console.log('Filtering videos by teacherId:', teacherId);
-        requestConfig.params.channelId = teacherId;
-      }
-      
-      console.log('Fetching videos with config:', requestConfig);
-      
-      const response = await axios.get(url, requestConfig);
-      
-      if (response.data && response.data.data) {
-        setVideos(response.data.data);
-        console.log('Videos loaded:', response.data.data.length);
-      } else {
-        console.warn('Unexpected API response format:', response.data);
-        setVideos([]);
-      }
-      
-      setError(null);
-    } catch (error) {
-      console.error('Error fetching videos:', error);
-      setError('Failed to fetch videos');
-      setVideos([]);
-    } finally {
-      setLoading(false);
     }
-  };
+    
+    // If teacherId is provided, add it as channelId parameter
+    if (teacherId) {
+      console.log('Filtering videos by teacherId:', teacherId);
+      requestConfig.params.channelId = teacherId;
+    }
+    
+    console.log('Fetching videos with config:', requestConfig);
+    
+    const response = await axios.get(url, requestConfig);
+    
+    if (response.data && response.data.data) {
+      setVideos(response.data.data);
+      console.log('Videos loaded:', response.data.data.length);
+    } else {
+      console.warn('Unexpected API response format:', response.data);
+      setVideos([]);
+    }
+    
+    setError(null);
+  } catch (error) {
+    console.error('Error fetching videos:', error);
+    setError('Failed to fetch videos');
+    setVideos([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleSearch = (query) => {
     setSearchQuery(query);
