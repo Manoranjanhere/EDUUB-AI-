@@ -6,9 +6,7 @@ import { Mic, MicOff, Delete } from '@mui/icons-material';
 import VideoCard from './VideoCard';
 import SearchBar from '../common/SearchBar';
 import './VideoStyles.css';
-import api from '../../utils/api';
 
-const response = await api.get('/videos', { params: requestConfig.params });
 const VideoList = ({ teacherId = null }) => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
