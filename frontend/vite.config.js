@@ -14,6 +14,6 @@ export default defineConfig({
       host: 'localhost',
     },
     // Add allowed hosts 
-    allowedHosts: ['eduub.mano.systems', 'localhost', '64.227.152.247']
+    allowedHosts: ['eduub.mano.systems','eduubserver.mano.systems', 'localhost', '64.227.152.247']
   },
 });
