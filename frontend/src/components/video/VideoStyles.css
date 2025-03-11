@@ -241,7 +241,6 @@ body, html {
   color: var(--text-primary);
   font-weight: 500;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   margin-bottom: 10px;
@@ -945,37 +944,7 @@ body, html {
   color: var(--primary-accent);
 }
 
-/* Responsiveness enhancements */
-@media (max-width:/* filepath: c:\Users\manor\OneDrive\Desktop\EDUUB\frontend\src\components\video\VideoStyles.css */
-:root {
-  /* Futuristic color palette */
-  --primary-accent: #00e5ff;
-  --secondary-accent: #2979ff;
-  --tertiary-accent: #651fff;
-  --danger-accent: #ff1744;
-  --success-accent: #00e676;
-  
-  --card-bg: rgba(15, 17, 26, 0.85);
-  --card-bg-darker: rgba(10, 12, 20, 0.92);
-  --card-border: rgba(79, 195, 247, 0.2);
-  --text-primary: #ffffff;
-  --text-secondary: #b0bec5;
-  --text-tertiary: #78909c;
-  --primary-color: var(--primary-accent);
-  --primary-gradient: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
-  --secondary-gradient: linear-gradient(135deg, var(--secondary-accent), var(--tertiary-accent));
-  --danger-gradient: linear-gradient(135deg, var(--danger-accent), #ff5252);
-  
-  /* Futuristic shadows and glows */
-  --neon-glow: 0 0 10px rgba(0, 229, 255, 0.5), 0 0 20px rgba(0, 229, 255, 0.3), 0 0 30px rgba(0, 229, 255, 0.1);
-  --neon-glow-blue: 0 0 10px rgba(41, 121, 255, 0.5), 0 0 20px rgba(41, 121, 255, 0.3), 0 0 30px rgba(41, 121, 255, 0.1);
-  --neon-glow-purple: 0 0 10px rgba(101, 31, 255, 0.5), 0 0 20px rgba(101, 31, 255, 0.3), 0 0 30px rgba(101, 31, 255, 0.1);
-  --panel-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  
-  /* Futuristic backdrop filters */
-  --glass-effect: blur(20px) saturate(180%);
-  --glass-effect-strong: blur(30px) saturate(200%);
-}
+
 
 /* Global styles */
 body, html {
@@ -1190,7 +1159,6 @@ body, html {
   color: var(--text-primary);
   font-weight: 500;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   margin-bottom: 10px;
