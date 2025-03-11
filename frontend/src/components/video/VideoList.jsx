@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Grid, Container, Typography, CircularProgress, Button, Box, Modal, Paper } from '@mui/material';
 import { Mic, MicOff, Delete } from '@mui/icons-material';
-import axios from 'axios';
 import VideoCard from './VideoCard';
 import SearchBar from '../common/SearchBar';
 import './VideoStyles.css';
