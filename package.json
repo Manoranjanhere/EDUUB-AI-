@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@google/generative-ai": "^0.22.0"
+    "@google/generative-ai": "^0.22.0",
+    "say": "^0.16.0"
   }
 }

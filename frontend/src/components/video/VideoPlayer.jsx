@@ -274,6 +274,12 @@ const VideoPlayer = () => {
       setIsSpeaking(false);
       
       const token = localStorage.getItem("token");
+      
+      if (!token) {
+        console.error("No authentication token found");
+        alert("Please log in to use this feature");
+        return;
+      }
       // Get current video playback time for Near Time
       const currentTime = videoRef.current ? videoRef.current.currentTime : 0;
 
