@@ -297,22 +297,22 @@ Question: ${question}`;
     });
     
     // Convert answer to speech
-    try {
-      // Only start speech if none is active
-      if (!activeSpeech) {
-        activeSpeech = answer;
-        say.speak(answer, null, null, (err) => {
-          if (err) console.error('Text-to-speech error:', err);
-          // Clear active speech when done
-          activeSpeech = null;
-        });
-      } else {
-        console.log('Speech already in progress, not starting new speech');
-      }
-    } catch (error) {
-      console.error('Text-to-speech error:', error);
-      activeSpeech = null;
-    }
+    // try {
+    //   // Only start speech if none is active
+    //   if (!activeSpeech) {
+    //     activeSpeech = answer;
+    //     say.speak(answer, null, null, (err) => {
+    //       if (err) console.error('Text-to-speech error:', err);
+    //       // Clear active speech when done
+    //       activeSpeech = null;
+    //     });
+    //   } else {
+    //     console.log('Speech already in progress, not starting new speech');
+    //   }
+    // } catch (error) {
+    //   console.error('Text-to-speech error:', error);
+    //   activeSpeech = null;
+    // }
   } catch (error) {
     console.error('QA Error:', error);
     res.status(500).json({ 

@@ -28,6 +28,67 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import "./VideoStyles.css";
 
+// Web Speech API utility functions
+const speechSynthesis = window.speechSynthesis;
+let currentUtterance = null;
+
+const speakText = (text, options = {}) => {
+  return new Promise((resolve, reject) => {
+    // Stop any existing speech first
+    stopSpeaking();
+    
+    // Check browser support
+    if (!speechSynthesis) {
+      console.error("Speech synthesis not supported by your browser");
+      reject(new Error("Speech synthesis not supported"));
+      return;
+    }
+    
+    // Create utterance
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Configure options
+    utterance.rate = options.rate || 1;
+    utterance.pitch = options.pitch || 1;
+    utterance.volume = options.volume || 1;
+    
+    // Set voice if specified
+    if (options.voice) {
+      const voices = speechSynthesis.getVoices();
+      const voice = voices.find(v => v.name === options.voice);
+      if (voice) utterance.voice = voice;
+    }
+    
+    // Set up listeners
+    utterance.onend = () => {
+      currentUtterance = null;
+      console.log("Speech finished");
+      resolve();
+    };
+    
+    utterance.onerror = (event) => {
+      console.error("Speech error:", event);
+      currentUtterance = null;
+      reject(new Error(event.error));
+    };
+    
+    // Store reference and start speaking
+    currentUtterance = utterance;
+    speechSynthesis.speak(utterance);
+  });
+};
+
+const stopSpeaking = () => {
+  if (speechSynthesis) {
+    speechSynthesis.cancel();
+    currentUtterance = null;
+  }
+};
+
+const isSpeakingNow = () => {
+  return speechSynthesis ? speechSynthesis.speaking : false;
+};
+
 const VideoPlayer = () => {
   const { id } = useParams();
   const [video, setVideo] = useState(null);
@@ -64,31 +125,10 @@ const VideoPlayer = () => {
   useEffect(() => {
     return () => {
       console.log('Video component unmounting, stopping speech...');
-      stopSpeechOnExit();
+      stopSpeaking();
+      setIsSpeaking(false);
     };
   }, []);
-  
-  // Add event listener for page close/refresh
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      // This runs when the browser window/tab is closed or refreshed
-      if (isSpeaking) {
-        // Use sendBeacon for sync request during unload
-        navigator.sendBeacon(
-          `${import.meta.env.VITE_BACKEND_URL}/qa/stop-speech-beacon`
-        );
-        console.log('Sending beacon to stop speech');
-      }
-    };
-    
-    // Add the event listener
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    
-    // Remove the event listener when component unmounts
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [isSpeaking]);
 
   const setupSpeechRecognition = () => {
     if ("webkitSpeechRecognition" in window) {
@@ -125,31 +165,6 @@ const VideoPlayer = () => {
         "using search type:",
         activeSearchType
       );
-    }
-  };
-
-  // Function to stop speech when exiting the component
-  const stopSpeechOnExit = async () => {
-    try {
-      // Only attempt to stop if we believe speech might be playing
-      if (isSpeaking) {
-        const token = localStorage.getItem("token");
-        await axios.post(
-          `${import.meta.env.VITE_BACKEND_URL}/qa/stop-speech`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        setIsSpeaking(false);
-        console.log('Speech stopped on exit');
-      }
-    } catch (error) {
-      // Just log the error but don't bother the user as they're navigating away
-      console.error('Error stopping speech during exit:', error);
     }
   };
 
@@ -205,46 +220,30 @@ const VideoPlayer = () => {
     }
   };
 
+  // Updated to use client-side TTS
   const toggleSpeech = async () => {
     try {
-      const token = localStorage.getItem("token");
-
       if (isSpeaking) {
         // Stop speech
-        await axios.post(
-          `${import.meta.env.VITE_BACKEND_URL}/qa/stop-speech`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        stopSpeaking();
         setIsSpeaking(false);
       } else {
-        // We're not currently speaking but want to restart
+        // We're not currently speaking but want to start/restart
         if (answer) {
           setIsSpeaking(true);
           try {
-            await axios.post(
-              `${import.meta.env.VITE_BACKEND_URL}/qa/speak`,
-              { text: answer.answer },
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                },
-              }
-            );
+            await speakText(answer.answer);
+            // When finished speaking
+            setIsSpeaking(false);
           } catch (error) {
-            console.error("Error starting speech:", error);
+            console.error("Speech error:", error);
             setIsSpeaking(false);
           }
         }
       }
     } catch (error) {
       console.error("Error toggling speech:", error);
+      setIsSpeaking(false);
     }
   };
 
@@ -270,6 +269,10 @@ const VideoPlayer = () => {
     }
 
     try {
+      // Stop any current speech
+      stopSpeaking();
+      setIsSpeaking(false);
+      
       const token = localStorage.getItem("token");
       // Get current video playback time for Near Time
       const currentTime = videoRef.current ? videoRef.current.currentTime : 0;
@@ -302,8 +305,20 @@ const VideoPlayer = () => {
       );
 
       console.log("Response from server:", response.data);
-      setAnswer(response.data.data);
-      setIsSpeaking(true);
+      const responseData = response.data.data;
+      setAnswer(responseData);
+      
+      // Auto-play the answer with client-side TTS
+      if (responseData && responseData.answer) {
+        try {
+          setIsSpeaking(true);
+          await speakText(responseData.answer);
+          setIsSpeaking(false);
+        } catch (error) {
+          console.error("Speech error:", error);
+          setIsSpeaking(false);
+        }
+      }
     } catch (error) {
       console.error("Error getting answer:", error);
       setAnswer(null);
@@ -323,9 +338,8 @@ const VideoPlayer = () => {
 
   // Handle closing the video - make sure to stop speech
   const handleClose = () => {
-    if (isSpeaking) {
-      stopSpeechOnExit();
-    }
+    stopSpeaking();
+    setIsSpeaking(false);
     navigate(-1);
   };
 
@@ -639,18 +653,27 @@ const VideoPlayer = () => {
                   pt: 2,
                 }}
               >
-                  {video && video.teacher && 
-    localStorage.getItem('user') && 
-    JSON.parse(localStorage.getItem('user')).id === video.teacher._id && (
-      <Button
-        variant="contained"
-        color="error"
-        startIcon={<Delete />}
-        onClick={() => handleDeleteVideo(video._id)}
-      >
-        Delete
-      </Button>
-  )}
+                {video && video.teacher && 
+                  localStorage.getItem('user') && 
+                  (() => {
+                    try {
+                      const userData = JSON.parse(localStorage.getItem('user'));
+                      return userData && userData.id === video.teacher._id;
+                    } catch (e) {
+                      console.error("Error parsing user data:", e);
+                      return false;
+                    }
+                  })() && (
+                    <Button
+                      variant="contained"
+                      color="error"
+                      startIcon={<Delete />}
+                      onClick={() => handleDeleteVideo(video._id)}
+                    >
+                      Delete
+                    </Button>
+                  )
+                }
                 <Button 
                   variant="contained" 
                   onClick={handleClose}
