@@ -25,7 +25,8 @@ app.use(cors({
       'http://64.227.152.247:5173', 
       'http://localhost:5173',
       'https://eduub.mano.systems',
-      'https://eduubserver.mano.systems'
+      'https://eduubserver.mano.systems',
+       'https://eduub-ai.vercel.app'
     ];
     
     // Allow requests with no origin (like mobile apps, curl, etc.)
