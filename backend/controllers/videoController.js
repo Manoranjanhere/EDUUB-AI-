@@ -244,7 +244,7 @@ console.log('9. Storing transcript in ChromaDB...');
 try {
   // Initialize ChromaDB client with explicit server URL
   const chromaClient = new ChromaDB.ChromaClient({
-    path: process.env.CHROMA_URL ||"http://localhost:8000" // Make sure this points to your running ChromaDB server
+    path: process.env.CHROMA_URL ||"http://chromadb:8000" // Make sure this points to your running ChromaDB server
   });
   
   // Define collection name based on user ID
