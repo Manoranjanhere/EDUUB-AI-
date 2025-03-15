@@ -17,9 +17,9 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
-// Simplified CORS configuration - allow all origins
+// Change the CORS configuration to specify eduub.mano.systems instead of wildcard
 app.use(cors({
-  origin: '*',
+  origin: 'https://eduub.mano.systems',  // Specific origin instead of wildcard
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Authorization', 'Content-Type', 'Accept', 'Origin', 'X-Requested-With']
