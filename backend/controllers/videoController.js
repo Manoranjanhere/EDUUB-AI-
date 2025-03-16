@@ -244,7 +244,7 @@ console.log('9. Storing transcript in ChromaDB...');
 try {
   // Initialize ChromaDB client with explicit server URL
   const chromaClient = new ChromaDB.ChromaClient({
-    path: process.env.CHROMA_URL ||"http://chromadb:8000" // Make sure this points to your running ChromaDB server
+    path: process.env.CHROMA_URL || "http://eduub-chromadb:8000"  // Match your container name
   });
   
   // Define collection name based on user ID
@@ -409,7 +409,7 @@ export const deleteVideo = async (req, res) => {
     try {
       console.log('Deleting transcript from ChromaDB...');
       const chromaClient = new ChromaDB.ChromaClient({
-        path: "http://localhost:8000"
+        path: process.env.CHROMA_URL || "http://eduub-chromadb:8000"  // Match your container name
       });
       
       // Use the teacher ID for the collection name, same as during upload

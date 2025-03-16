@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors'; // Make sure this is imported
 import {fileURLToPath} from 'url';
 import {dirname} from 'path';
 import connectDB from './config/database.js';
@@ -16,9 +17,58 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
-// REMOVE ALL CORS MIDDLEWARE
-// app.options('*', (req, res) => {...});
-// app.use(cors({...}));
+// RESTORE CORS MIDDLEWARE with proper configuration
+// Handle OPTIONS requests properly
+app.options('*', cors({
+  origin: function(origin, callback) {
+    // List all allowed origins
+    const allowedOrigins = [
+      'http://localhost:5173',        // Local development
+      'https://localhost:5173',       // Local with HTTPS
+      'http://64.227.152.247:5173',   // Server IP + port
+      'https://eduub.mano.systems',   // Production frontend
+      'http://eduub.mano.systems'     // Production frontend HTTP
+    ];
+    
+    // Allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(null, false);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Authorization', 'Content-Type', 'Accept', 'Origin', 'X-Requested-With']
+}));
+
+// Regular CORS middleware for all other requests
+app.use(cors({
+  origin: function(origin, callback) {
+    // List all allowed origins
+    const allowedOrigins = [
+      'http://localhost:5173',        // Local development
+      'https://localhost:5173',       // Local with HTTPS
+      'http://64.227.152.247:5173',   // Server IP + port
+      'https://eduub.mano.systems',   // Production frontend
+      'http://eduub.mano.systems'     // Production frontend HTTP
+    ];
+    
+    // Allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(null, false);
+    }
+  },
+  credentials: true
+}));
 
 // Simple logging middleware
 app.use((req, res, next) => {

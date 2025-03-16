@@ -14,9 +14,11 @@ COPY package*.json ./
 RUN npm install
 
 RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir setuptools wheel && \
+    pip install --no-cache-dir numpy==1.24.3 && \
     pip install --no-cache-dir torch==2.0.1 torchaudio==2.0.2 --extra-index-url https://download.pytorch.org/whl/cpu && \
-    pip install --no-cache-dir numpy==1.23.5 && \
     pip install --no-cache-dir git+https://github.com/openai/whisper.git
+
 
 COPY . .
 
