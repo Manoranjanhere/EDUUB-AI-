@@ -8,8 +8,9 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Box,
 } from '@mui/material';
-import { AccountCircle, VideoCall } from '@mui/icons-material';
+import { AccountCircle, VideoCall, School, Home } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 import './CommonStyles.css';
 
@@ -32,19 +33,63 @@ const Navbar = () => {
     handleClose();
   };
 
+  // Navigate to home and reset search
+  const navigateToHome = () => {
+    // Navigate to home page
+    navigate('/');
+    
+    // Reset search by dispatching a custom event that VideoList component can listen for
+    const resetEvent = new CustomEvent('reset-search', {
+      bubbles: true
+    });
+    document.dispatchEvent(resetEvent);
+  };
+
   return (
     <AppBar position="fixed" className="navbar">
       <Toolbar className="navbar-toolbar">
-        <Typography 
-          variant="h6" 
-          className="navbar-logo"
-          onClick={() => navigate('/')}
+        <Box 
+          className="navbar-logo-container" 
+          onClick={navigateToHome}
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+            '&:hover': {
+              '& .logo-icon': {
+                color: '#00E5FF',
+                transform: 'scale(1.1)',
+              },
+              '& .logo-text': {
+                color: '#00E5FF',
+              }
+            }
+          }}
         >
-          EDUUB
-        </Typography>
+          <School 
+            className="logo-icon" 
+            fontSize="large"
+            sx={{ 
+              color: 'white', 
+              transition: 'all 0.3s ease',
+              animation: 'glow 3s infinite alternate'
+            }} 
+          />
+          <Typography 
+            variant="h6" 
+            className="logo-text navbar-logo"
+            sx={{ transition: 'color 0.3s ease' }}
+          >
+            EDUUB
+          </Typography>
+        </Box>
 
         {user ? (
           <div className="navbar-right">
+            {/* Home button */}
+            
+            
             {/* Show upload button only for teachers */}
             {isAuthenticated && user.role === 'teacher' && (
               <Button

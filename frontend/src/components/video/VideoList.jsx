@@ -22,13 +22,29 @@ const VideoList = ({ teacherId = null }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const modalRef = useRef(null);
 
+  // Combine the two useEffect hooks
   useEffect(() => {
     console.log('VideoList mounted with teacherId:', teacherId);
+    
     setVideos([]);
     setLoading(true);
     setError(null);
     fetchVideos();
     setupSpeechRecognition();
+    
+    // Reset search handler
+    const handleResetSearch = () => {
+      setSearchQuery('');
+      fetchVideos('');
+    };
+    
+    // Add listener for reset-search event
+    document.addEventListener('reset-search', handleResetSearch);
+    
+    // Clean up event listener
+    return () => {
+      document.removeEventListener('reset-search', handleResetSearch);
+    };
   }, [teacherId]); // teacherId dependency will trigger refetch when it changes
 
   const setupSpeechRecognition = () => {
