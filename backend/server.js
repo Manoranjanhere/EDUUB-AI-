@@ -18,6 +18,15 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
+app.options('*', cors());
+
+// Add this after your CORS middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log(`Origin: ${req.headers.origin || 'none'}`);
+  console.log(`Headers: ${JSON.stringify(req.headers)}`);
+  next();
+});
 //middleware
 app.use(cors({
   origin: function(origin, callback) {
