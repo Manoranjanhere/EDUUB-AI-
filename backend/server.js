@@ -18,7 +18,7 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
-app.options('*', cors());
+// app.options('*', cors());
 
 // Add this after your CORS middleware
 app.use((req, res, next) => {
