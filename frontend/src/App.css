@@ -1,28 +1,6 @@
-:root {
-  /* Enhanced color palette with more futuristic variables */
-  --background-dark: #0A0C15;
-  --card-bg: rgba(23, 25, 36, 0.85);
-  --card-bg-lighter: rgba(30, 34, 50, 0.85);
-  --text-primary: #FFFFFF;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --primary-color: #00E5FF;
-  --secondary-color: #FF1776;
-  --accent-color: #FFEA00;
-  --success-color: #00E676;
-  
-  /* New variables for futuristic UI */
-  --neon-glow: 0 0 10px rgba(0, 229, 255, 0.7);
-  --neon-glow-intense: 0 0 15px rgba(0, 229, 255, 0.8), 0 0 30px rgba(0, 229, 255, 0.4);
-  --secondary-neon-glow: 0 0 10px rgba(255, 23, 118, 0.7);
-  --card-border: rgba(0, 229, 255, 0.2);
-  --glass-effect: blur(10px);
-  --grid-line-color: rgba(255, 255, 255, 0.03);
-  --hover-transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  --primary-accent: #00E5FF;
-}
+/* Update your App.css file with absolute positioning */
 
-
-
+/* Fix 1: Make background elements cover the entire document height, not just viewport */
 .app {
   min-height: 100vh;
   background-color: var(--background-dark);
@@ -34,219 +12,164 @@
     linear-gradient(60deg, rgba(10, 12, 21, 1) 0%, rgba(18, 20, 32, 1) 100%);
   background-size: 30px 30px, 30px 30px, 100% 100%, 100% 100%, 100% 100%;
   background-position: center center;
-  background-attachment: fixed;
+  background-attachment: fixed; /* This ensures background stays fixed during scroll */
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
-}
-@media (hover: hover) {
-  .app {
-    animation: subtle-parallax 30s ease infinite alternate;
-  }
-  
-  @keyframes subtle-parallax {
-    0% {
-      background-position: 0px 0px, 0px 0px, 30% 20%, 70% 65%, 0% 0%;
-    }
-    100% {
-      background-position: 30px 30px, 30px 30px, 32% 22%, 68% 63%, 0% 0%;
-    }
-  }
+  position: absolute; /* Changed from relative to absolute */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
-
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  100% {
-    background-position: 100% 50%;
-  }
+/* Fix 2: Update animated-particles to use absolute positioning */
+.animated-particles {
+  position: absolute !important; /* Changed from fixed to absolute */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%; 
+  z-index: 0 !important;
+  pointer-events: none;
+  overflow: visible !important; /* Allow particles to be visible outside of container */
 }
-/* Use a wrapper div instead of absolute positioning */
 
+/* Fix 3: Ensure particles use absolute positioning */
+.particle {
+  position: absolute !important; /* Already absolute, keeping for consistency */
+  background-color: #00E5FF !important;
+  border-radius: 50%;
+  z-index: 1 !important;
+  box-shadow: 0 0 10px 2px rgba(0, 229, 255, 0.7);
+}
+
+/* Fix 4: Update animation keyframes to allow larger movement ranges */
+@keyframes float-1 {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(15vw, 10vh); }
+  50% { transform: translate(8vw, 15vh); }
+  75% { transform: translate(-8vw, 10vh); }
+}
+
+@keyframes float-2 {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(-12vw, 8vh); }
+  66% { transform: translate(8vw, -12vh); }
+}
+
+@keyframes float-3 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(10vw, -10vh) rotate(180deg); }
+}
+
+@keyframes float-4 {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(6vw, -8vh); }
+  40% { transform: translate(12vw, 0vh); }
+  60% { transform: translate(6vw, 8vh); }
+  80% { transform: translate(-6vw, 4vh); }
+}
+
+/* Fix 5: Update the main-content to use absolute positioning */
 .main-content {
-  padding-top: 64px;
+  position: absolute; /* Changed from relative to absolute */
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%); /* Center horizontally */
   min-height: calc(100vh - 64px);
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   max-width: 1400px;
-  margin: 0 !important; /* Reset any margin */
-  padding: 64px 20px 20px 20px;
-  box-sizing: border-box;
-  background-color: var(--background-dark);
-  
-  z-index: 1;
-  /* Force centering via absolute positioning */
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-
-
-.glow-text {
-  text-shadow: var(--neon-glow);
-}
-
-.glow-box {
-  box-shadow: var(--neon-glow);
-  border: 1px solid var(--card-border);
-}
-
-.secondary-glow-box {
-  box-shadow: var(--secondary-neon-glow);
-  border: 1px solid rgba(255, 23, 118, 0.2);
-}
-
-
-.tech-panel {
-  background: rgba(23, 25, 36, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  backdrop-filter: var(--glass-effect);
   padding: 20px;
-  position: relative;
-  overflow: hidden;
-  transition: var(--hover-transition);
+  box-sizing: border-box;
+  z-index: 10;
 }
 
-.tech-panel:hover {
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), var(--neon-glow);
-}
-.tech-panel::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(45deg, transparent, rgba(0, 229, 255, 0.3), transparent);
-  z-index: -1;
-  animation: border-flow 5s linear infinite;
-}
-
-@keyframes border-flow {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.tech-button {
-  background: rgba(0, 229, 255, 0.1);
-  border: 1px solid rgba(0, 229, 255, 0.3);
-  border-radius: 4px;
-  color: white;
-  padding: 8px 20px;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 500;
-}
-
-.tech-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.tech-button:hover {
-  background: rgba(0, 229, 255, 0.2);
-  box-shadow: var(--neon-glow);
-  transform: translateY(-2px);
-}
-
-.tech-button:hover::before {
-  left: 100%;
-}
-
-/* Enhanced responsive container */
-.content-container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 16px;
-}
-/* Enhanced Animation classes */
-.fade-enter {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-.fade-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.3s, transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-.fade-exit {
-  opacity: 1;
-}
-
-.fade-exit-active {
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-/* Enhanced Hexagonal loader */
-.hexagon-loader {
-  width: 60px;
-  height: 60px;
-  position: relative;
-  animation: rotate 2s linear infinite;
-}
-
-.hexagon-loader::before {
-  content: '';
-  position: absolute;
+/* Fix content wrapper to use absolute positioning */
+.content-wrapper {
+  position: absolute; /* Changed from relative to absolute */
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0 60deg,
-    var(--primary-color) 60deg 120deg,
-    transparent 120deg 180deg,
-    var(--secondary-color) 180deg 240deg,
-    transparent 240deg 300deg,
-    var(--accent-color) 300deg 360deg
-  );
-  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-  filter: drop-shadow(0 0 5px var(--primary-color));
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-@keyframes rotate {
+/* Fix 6: Update the app::after element to use absolute positioning for stars */
+.app::after {
+  content: "";
+  position: absolute; /* Changed from fixed to absolute */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.3), rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.4), rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 50px 160px, rgba(255, 255, 255, 0.5), rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 90px 40px, rgba(255, 255, 255, 0.3), rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 130px 80px, rgba(255, 255, 255, 0.4), rgba(0, 0, 0, 0)),
+    radial-gradient(2px 2px at 160px 120px, rgba(255, 255, 255, 0.5), rgba(0, 0, 0, 0));
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.15;
+  z-index: 0;
+  animation: moveStars 150s linear infinite;
+}
+
+/* Fix 7: Update glow overlay to use absolute positioning */
+.glow-overlay {
+  position: absolute; /* Changed from fixed or relative */
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 229, 255, 0.05) 0%,
+    rgba(0, 0, 0, 0) 70%
+  );
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.8;
+  animation: pulse 15s infinite alternate;
+}
+
+/* Fix navbar positioning */
+.navbar {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  z-index: 100;
+}
+
+/* Add animation keyframe for stars */
+@keyframes moveStars {
   from {
-    transform: rotate(0deg);
+    background-position: 0 0;
   }
   to {
-    transform: rotate(360deg);
+    background-position: 10000px 0;
   }
 }
 
-/* Enhanced Media Queries */
-@media (max-width: 768px) {
-  .main-content {
-    padding: 64px 12px 12px 12px;
-    width: 100%;
+/* Add animation for pulse */
+@keyframes pulse {
+  0% {
+    opacity: 0.4;
+    transform: translate(-50%, -50%) scale(0.8);
   }
-  
-  .content-container {
-    padding: 0 12px;
+  100% {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(1.2);
   }
 }
