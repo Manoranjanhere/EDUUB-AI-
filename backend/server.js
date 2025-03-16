@@ -43,7 +43,6 @@ app.use(cors({
   allowedHeaders: ['Authorization', 'Content-Type', 'Accept', 'Origin', 'X-Requested-With']
 }));
 
-app.options('*', cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
