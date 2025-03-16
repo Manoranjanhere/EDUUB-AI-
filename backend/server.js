@@ -18,39 +18,10 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
-// app.options('*', cors());
-
-// Add this after your CORS middleware
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  console.log(`Origin: ${req.headers.origin || 'none'}`);
-  console.log(`Headers: ${JSON.stringify(req.headers)}`);
-  next();
-});
-//middleware
-app.use(cors({
-  origin: function(origin, callback) {
-    const allowedOrigins = [
-      'http://64.227.152.247:5173', 
-      'http://localhost:5173',
-      'https://eduub.mano.systems',
-      'https://eduubserver.mano.systems',
-       'https://eduub-ai.vercel.app'
-    ];
-    
-    // Allow requests with no origin (like mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log('CORS blocked origin:', origin);
-      callback(null, false);
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Authorization', 'Content-Type', 'Accept', 'Origin', 'X-Requested-With']
+// Add this after importing cors but before any other middleware
+app.options('*', cors({
+  origin: ['https://eduub.mano.systems', 'http://localhost:5173'],
+  credentials: true
 }));
 
 app.use(express.json());
