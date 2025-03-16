@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CORS Test</title>
+</head>
+<body>
+    <h2>CORS Test</h2>
+    <div id="result"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Test fetching videos endpoint
+            fetch('https://eduubserver.mano.systems/api/videos?search=', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer YourTestToken'
+                }
+            })
+            .then(response => {
+                document.getElementById('result').innerHTML = 
+                    `Success! Status: ${response.status} ${response.statusText}`;
+                return response.json();
+            })
+            .then(data => {
+                console.log('Data received:', data);
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = 
+                    `Error: ${error.message}`;
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
