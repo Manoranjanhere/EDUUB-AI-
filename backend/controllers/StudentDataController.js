@@ -5,16 +5,37 @@ import Video from '../models/Video.js';
 export const trackWatchTime = async (req, res) => {
   try {
     const { videoId, watchTime } = req.body;
-    const studentId = req.user._id;
-
-    // Validate inputs
-    if (!videoId || !watchTime || watchTime <= 0) {
+    
+    console.log('Track watch time request received:', {
+      userId: req.user?._id,
+      username: req.user?.username,
+      videoId,
+      watchTime
+    });
+    
+    if (!videoId) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid video ID or watch time'
+        message: 'Video ID is required'
       });
     }
-
+    
+    // Ensure watchTime is a number and greater than 0
+    const parsedWatchTime = parseInt(watchTime);
+    if (isNaN(parsedWatchTime) || parsedWatchTime <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Watch time must be a positive number'
+      });
+    }
+    
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required'
+      });
+    }
+    
     // Get video details
     const video = await Video.findById(videoId);
     if (!video) {
@@ -23,58 +44,84 @@ export const trackWatchTime = async (req, res) => {
         message: 'Video not found'
       });
     }
+    
+    console.log(`Processing watch time for video "${video.title}"`);
 
-    // Find or create student data
+    // Find existing student data or create new
     let studentData = await StudentData.findOne({
-      student: studentId,
+      student: req.user._id,
       video: videoId
     });
-
+    
+    let previousWatchTime = 0;
+    
     if (!studentData) {
+      console.log('Creating new student data record');
       // Create new record
       studentData = new StudentData({
-        student: studentId,
+        student: req.user._id,
         video: videoId,
         title: video.title,
-        watchTime: watchTime,
+        watchTime: parsedWatchTime, // Start with the current watch time
+        questionsAsked: 0,
         lastWatched: new Date()
       });
     } else {
-      // Update existing record
-      studentData.watchTime += parseInt(watchTime);
+      console.log('Updating existing student data record');
+      // Get previous watch time
+      previousWatchTime = studentData.watchTime || 0;
+      
+      // Add new watch time
+      studentData.watchTime = previousWatchTime + parsedWatchTime;
       studentData.lastWatched = new Date();
-      console.log(`Updated existing record. Total watch time: ${studentData.watchTime}`);
-
-      // Mark as completed if watched at least 90% of video
+      
+      // Mark as completed if applicable (if video has duration)
       if (video.duration && studentData.watchTime >= video.duration * 0.9) {
         studentData.completed = true;
-        console.log('Video marked as completed');
-
       }
     }
 
+    // Save the data
     await studentData.save();
+    
+    console.log('Student data saved successfully:', {
+      studentId: req.user._id,
+      videoId,
+      previousWatchTime,
+      addedWatchTime: parsedWatchTime,
+      newTotalWatchTime: studentData.watchTime
+    });
+
+    // Format the watch time for display
+    const formatTime = (seconds) => {
+      const hrs = Math.floor(seconds / 3600);
+      const mins = Math.floor((seconds % 3600) / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
 
     res.json({
       success: true,
       data: {
-        videoId: videoId,
+        videoId,
         title: video.title,
         watchTime: studentData.watchTime,
-        completed: studentData.completed
+        formattedWatchTime: formatTime(studentData.watchTime),
+        completed: studentData.completed || false,
+        prevWatchTime: previousWatchTime,
+        addedTime: parsedWatchTime
       }
     });
-
   } catch (error) {
     console.error('Error tracking watch time:', error);
     res.status(500).json({
       success: false,
       message: 'Server error while tracking watch time',
-      error: error.message
+      error: error.message,
+      stack: process.env.NODE_ENV === 'production' ? null : error.stack
     });
   }
 };
-
 // Track questions asked
 export const trackQuestion = async (req, res) => {
   try {

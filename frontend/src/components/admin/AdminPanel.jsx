@@ -167,14 +167,14 @@ const AdminPanel = () => {
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', flexWrap: { xs: 'wrap', md: 'nowrap' } }}>
                       <Avatar sx={{ mr: 2, bgcolor: 'primary.main' }}>
-                        {student.name?.charAt(0) || 'S'}
+                        {student.username?.charAt(0) || 'S'}
                       </Avatar>
                       
                       <Box sx={{ flex: 1, minWidth: 0, mr: 2 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', mb: 0.5 }}>
                           <Person fontSize="small" sx={{ mr: 1 }} />
                           <Typography variant="subtitle1" noWrap sx={{ fontWeight: 'bold' }}>
-                            {student.name || 'No Name'}
+                            {student.username || 'No Name'}
                           </Typography>
                         </Box>
                         

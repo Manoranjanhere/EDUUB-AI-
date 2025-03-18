@@ -16,12 +16,8 @@ const studentDataSchema = new mongoose.Schema({
     required: true
   },
   watchTime: {
-    type: Number,  // In seconds
+    type: Number,
     default: 0
-  },
-  lastWatched: {
-    type: Date,
-    default: Date.now
   },
   questionsAsked: {
     type: Number,
@@ -30,10 +26,16 @@ const studentDataSchema = new mongoose.Schema({
   completed: {
     type: Boolean,
     default: false
+  },
+  lastWatched: {
+    type: Date,
+    default: Date.now
   }
-}, { timestamps: true });
+}, {
+  timestamps: true
+});
 
-// Compound index for faster lookups
+// Create a compound index to ensure each user has one entry per video
 studentDataSchema.index({ student: 1, video: 1 }, { unique: true });
 
 export default mongoose.model('StudentData', studentDataSchema);
