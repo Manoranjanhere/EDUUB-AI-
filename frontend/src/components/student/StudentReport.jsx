@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { 
   Container, Typography, Box, Paper, Table, TableBody, 
   TableCell, TableContainer, TableHead, TableRow, CircularProgress,
-  Divider, Card, Grid, Chip
+  Divider, Card, Grid, Chip, Button
 } from '@mui/material';
-import { AccessTime, PlayCircle, CheckCircle, QuestionAnswer } from '@mui/icons-material';
+import { 
+  AccessTime, PlayCircle, CheckCircle, QuestionAnswer, BarChart 
+} from '@mui/icons-material';
 import { getStudentData } from '../../services/studentDataService';
+import ProgressAnalytics from './ProgressAnalytics';
 
 const StudentReport = () => {
+  const [showAnalytics, setShowAnalytics] = useState(false);
   const [loading, setLoading] = useState(true);
   const [studentData, setStudentData] = useState({
     videos: [],
@@ -21,10 +25,7 @@ const StudentReport = () => {
   });
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchStudentData();
-  }, []);
-
+  // Define fetchStudentData before using it in useEffect
   const fetchStudentData = async () => {
     try {
       setLoading(true);
@@ -43,6 +44,19 @@ const StudentReport = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchStudentData();
+  }, []);
+
+  const handleBackToReport = () => {
+    setShowAnalytics(false);
+  };
+
+  if (showAnalytics) {
+    return <ProgressAnalytics goBack={handleBackToReport} />;
+  }
+
 
   if (loading) {
     return (
@@ -64,9 +78,26 @@ const StudentReport = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 6 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        My Learning Progress
-      </Typography>
+      {/* Title with Analytics Button */}
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        mb: 3 
+      }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          My Learning Progress
+        </Typography>
+        
+        <Button 
+          variant="contained" 
+          color="primary"
+          startIcon={<BarChart />}
+          onClick={() => setShowAnalytics(true)}
+        >
+          View Analytics
+        </Button>
+      </Box>
 
       {/* Stats Overview Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>

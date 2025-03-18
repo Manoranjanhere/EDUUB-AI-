@@ -12,6 +12,7 @@ import { AuthProvider } from "./context/AuthContext";
 import Channel from "./components/channel/ChannelInfo";
 import StudentReport from "./components/student/StudentReport";
 import AdminPanel from "./components/admin/AdminPanel";
+import ProgressAnalytics from './components/student/ProgressAnalytics';
 
 import "./App.css";
 
@@ -192,6 +193,8 @@ function App() {
                 <Route path="/channel" element={<Channel />} />
                 <Route path="/student/report" element={<StudentReport />} />
                 <Route path="/admin/dashboard" element={<AdminPanel />} /> {/* Add this line */}
+                <Route path="/student/analytics" element={<ProgressAnalytics goBack={() => navigate('/student/report')} />} />
+
 
               </Routes>
             </main>

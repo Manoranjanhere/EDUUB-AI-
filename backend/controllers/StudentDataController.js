@@ -1,6 +1,7 @@
 import StudentData from '../models/StudentData.js';
 import Video from '../models/Video.js';
 
+
 // Track video watching time
 export const trackWatchTime = async (req, res) => {
   try {
@@ -29,14 +30,7 @@ export const trackWatchTime = async (req, res) => {
       });
     }
     
-    if (!req.user || !req.user._id) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication required'
-      });
-    }
-    
-    // Get video details
+    // Get the video information
     const video = await Video.findById(videoId);
     if (!video) {
       return res.status(404).json({
@@ -46,9 +40,9 @@ export const trackWatchTime = async (req, res) => {
     }
     
     console.log(`Processing watch time for video "${video.title}"`);
-
-    // Find existing student data or create new
-    let studentData = await StudentData.findOne({
+    
+    // Find or create student data entry
+    let studentData = await StudentData.findOne({ 
       student: req.user._id,
       video: videoId
     });
@@ -57,13 +51,14 @@ export const trackWatchTime = async (req, res) => {
     
     if (!studentData) {
       console.log('Creating new student data record');
-      // Create new record
+      // Create new student data
       studentData = new StudentData({
         student: req.user._id,
         video: videoId,
-        title: video.title,
-        watchTime: parsedWatchTime, // Start with the current watch time
+        title: video.title, // Add the video title here
+        watchTime: parsedWatchTime,
         questionsAsked: 0,
+        completed: video.duration ? parsedWatchTime >= video.duration * 0.9 : false,
         lastWatched: new Date()
       });
     } else {
@@ -71,12 +66,18 @@ export const trackWatchTime = async (req, res) => {
       // Get previous watch time
       previousWatchTime = studentData.watchTime || 0;
       
+      // Make sure title is set when updating
+      if (!studentData.title) {
+        studentData.title = video.title;
+      }
+      
       // Add new watch time
       studentData.watchTime = previousWatchTime + parsedWatchTime;
       studentData.lastWatched = new Date();
-      
+      console.log("video duration",video.duration);
       // Mark as completed if applicable (if video has duration)
       if (video.duration && studentData.watchTime >= video.duration * 0.9) {
+        console.log(`Marking video "${video.title}" as completed`);
         studentData.completed = true;
       }
     }
@@ -113,7 +114,7 @@ export const trackWatchTime = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error tracking watch time:', error);
+    console.warn('Error tracking watch time:', error);
     res.status(500).json({
       success: false,
       message: 'Server error while tracking watch time',
@@ -128,12 +129,24 @@ export const trackQuestion = async (req, res) => {
     const { videoId } = req.body;
     const studentId = req.user._id;
 
-    // Find student data
+    // Get the video information to access its title
+    const video = await Video.findById(videoId);
+    if (!video) {
+      return res.status(404).json({
+        success: false,
+        message: 'Video not found'
+      });
+    }
+
+    // Find student data with updated query
     const studentData = await StudentData.findOneAndUpdate(
       { student: studentId, video: videoId },
       { 
         $inc: { questionsAsked: 1 },
-        $set: { lastWatched: new Date() }
+        $set: { 
+          lastWatched: new Date(),
+          title: video.title // Ensure title is set
+        }
       },
       { new: true, upsert: true }
     );

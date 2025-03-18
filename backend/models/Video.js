@@ -49,6 +49,10 @@ teacherEmail: {
   views: {
     type: Number,
     default: 0
+  },
+  duration: {
+    type: Number,
+    default: 60
   }
 }, {
   timestamps: true

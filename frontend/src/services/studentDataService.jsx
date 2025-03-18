@@ -1,72 +1,68 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
-
 export const getStudentData = async () => {
   try {
     const token = localStorage.getItem('token');
+    
     if (!token) {
-      console.warn('No authentication token found');
-      // Return mock data for development
-      return { 
-        success: true, 
-        data: getMockData() 
-      };
+      return { success: false, message: 'Authentication required' };
     }
     
-    const response = await axios.get(
-      `${API_URL}/student-data/me`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    // Use environment variable for API URL if available
+    const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
+    
+    const response = await axios.get(`${API_URL}/student-data/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    // Map the response data structure to match what our components expect
+    if (response.data.success) {
+      // Format the data structure to match what our components expect
+      const processedData = {
+        videos: response.data.data.videos.map(video => ({
+          videoId: video._id || video.videoId,
+          title: video.title,
+          watchTime: video.watchTime || 0,
+          formattedWatchTime: formatWatchTime(video.watchTime || 0),
+          questionsAsked: video.questionsAsked || 0,
+          completed: video.completed || false,
+          lastWatched: video.lastWatched || new Date()
+        })),
+        stats: {
+          totalVideos: response.data.data.stats?.totalVideos || 0,
+          totalWatchTime: response.data.data.stats?.totalWatchTime || 0,
+          formattedTotalTime: formatWatchTime(response.data.data.stats?.totalWatchTime || 0),
+          videosCompleted: response.data.data.stats?.videosCompleted || 0,
+          totalQuestions: response.data.data.stats?.totalQuestions || 0
+        },
+        // Add this for ProgressAnalytics
+        activities: response.data.data.videos.map(video => ({
+          videoId: video._id || video.videoId,
+          title: video.title,
+          watchTime: video.watchTime || 0,
+          questionsAsked: video.questionsAsked || 0,
+          completed: video.completed || false,
+          lastWatched: video.lastWatched || new Date()
+        }))
+      };
+      
+      return { success: true, data: processedData };
+    }
     
     return response.data;
   } catch (error) {
     console.error('Error fetching student data:', error);
     return { 
       success: false, 
-      message: error.response?.data?.message || 'Failed to fetch student data'
+      message: error.response?.data?.message || 'Failed to fetch data'
     };
   }
 };
 
-// Mock data function
-const getMockData = () => {
-  return {
-    videos: [
-      {
-        videoId: '1',
-        title: 'Introduction to React',
-        watchTime: 3600,
-        formattedWatchTime: '01:00:00',
-        questionsAsked: 5,
-        lastWatched: new Date(),
-        completed: true
-      },
-      {
-        videoId: '2',
-        title: 'Advanced JavaScript Concepts',
-        watchTime: 1800,
-        formattedWatchTime: '00:30:00',
-        questionsAsked: 2,
-        lastWatched: new Date(Date.now() - 86400000),
-        completed: false
-      },
-      {
-        videoId: '3',
-        title: 'MongoDB for Beginners',
-        watchTime: 2700,
-        formattedWatchTime: '00:45:00',
-        questionsAsked: 3,
-        lastWatched: new Date(Date.now() - 172800000),
-        completed: true
-      }
-    ],
-    stats: {
-      totalVideos: 3,
-      totalWatchTime: 8100,
-      formattedTotalTime: '02:15:00',
-      videosCompleted: 2,
-      totalQuestions: 10
-    }
-  };
+// Helper function to format time
+const formatWatchTime = (seconds) => {
+  const hrs = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };

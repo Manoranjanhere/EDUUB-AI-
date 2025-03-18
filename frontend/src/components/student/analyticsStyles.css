@@ -1,0 +1,160 @@
+/* Calendar Styles */
+.react-calendar {
+    width: 100%;
+    max-width: 100%;
+    background: rgba(35, 37, 49, 0.8);
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.5em;
+    border: none !important;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    color: white;
+  }
+  
+  .react-calendar__navigation button {
+    color: white;
+    font-size: 1.2rem;
+  }
+  
+  .react-calendar__month-view__weekdays {
+    color: #00E5FF;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  .react-calendar__tile {
+    background: transparent;
+    color: white;
+    padding: 10px;
+    position: relative;
+  }
+  
+  .react-calendar__navigation {
+    display: flex;
+    margin-bottom: 10px;
+  }
+  
+  .react-calendar__navigation button {
+    min-width: 44px;
+    background: none;
+    font-size: 16px;
+    border-radius: 6px;
+    margin: 0 2px;
+  }
+  
+  .react-calendar__navigation button:enabled:hover,
+  .react-calendar__navigation button:enabled:focus {
+    background-color: rgba(0, 229, 255, 0.1);
+  }
+  
+  .react-calendar__tile--active {
+    background-color: rgba(0, 229, 255, 0.3) !important;
+    border-radius: 6px;
+  }
+  
+  /* Activity levels */
+  .activity-low {
+    background-color: rgba(255, 193, 7, 0.2);
+    border-radius: 6px;
+  }
+  
+  .activity-medium {
+    background-color: rgba(255, 87, 34, 0.2);
+    border-radius: 6px;
+  }
+  
+  .activity-high {
+    background-color: rgba(76, 175, 80, 0.3);
+    border-radius: 6px;
+  }
+  
+  .activity-dot {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #00E5FF;
+  }
+  
+  /* Legend dots */
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  
+  .legend-dot.low {
+    background-color: rgba(255, 193, 7, 0.8);
+  }
+  
+  .legend-dot.medium {
+    background-color: rgba(255, 87, 34, 0.8);
+  }
+  
+  .legend-dot.high {
+    background-color: rgba(76, 175, 80, 0.8);
+  }
+  
+  /* Chart styling */
+  .chart-container {
+    position: relative;
+    padding: 20px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(15, 17, 25, 0.9) 0%, rgba(35, 37, 49, 0.85) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 229, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .chart-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 229, 255, 0.15);
+  }
+  
+  .chart-tooltip {
+    background: rgba(15, 17, 25, 0.95);
+    border: 1px solid rgba(0, 229, 255, 0.3);
+    border-radius: 4px;
+    padding: 8px 12px;
+    color: white;
+    font-size: 0.8rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Analytics card hover effects */
+  .analytic-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .analytic-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px -10px rgba(0, 229, 255, 0.2);
+  }
+  
+  /* Pulse animation for chart highlights */
+  @keyframes pulse-highlight {
+    0% {
+      box-shadow: 0 0 0 0 rgba(0, 229, 255, 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(0, 229, 255, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(0, 229, 255, 0);
+    }
+  }
+  
+  .highlight-value {
+    animation: pulse-highlight 2s infinite;
+    display: inline-block;
+    padding: 0 5px;
+    border-radius: 4px;
+    background: rgba(0, 229, 255, 0.1);
+  }
