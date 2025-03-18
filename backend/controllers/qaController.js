@@ -114,8 +114,19 @@ export const handleQA = async (req, res) => {
   console.log('QA Request received:', {
     body: req.body,
   });
+  
   try {
     const { question, videoId, currentTime, searchType = 'general' } = req.body;
+    
+    // Track the question being asked
+    if (req.user && videoId) {
+      try {
+        await trackQuestion(req.user._id, videoId);
+      } catch (trackErr) {
+        console.error('Error tracking question:', trackErr);
+        // Continue processing even if tracking fails
+      }
+    }
     
     // Test ChromaDB connection
     const chromaConnected = await testChromaConnection();
@@ -296,23 +307,6 @@ Question: ${question}`;
       }
     });
     
-    // Convert answer to speech
-    // try {
-    //   // Only start speech if none is active
-    //   if (!activeSpeech) {
-    //     activeSpeech = answer;
-    //     say.speak(answer, null, null, (err) => {
-    //       if (err) console.error('Text-to-speech error:', err);
-    //       // Clear active speech when done
-    //       activeSpeech = null;
-    //     });
-    //   } else {
-    //     console.log('Speech already in progress, not starting new speech');
-    //   }
-    // } catch (error) {
-    //   console.error('Text-to-speech error:', error);
-    //   activeSpeech = null;
-    // }
   } catch (error) {
     console.error('QA Error:', error);
     res.status(500).json({ 
@@ -321,3 +315,23 @@ Question: ${question}`;
     });
   }
 };
+
+// Add the StudentData import at the top of the file
+import StudentData from '../models/StudentData.js';
+
+// Define the trackQuestion function
+async function trackQuestion(userId, videoId) {
+  try {
+    // Find student data
+    await StudentData.findOneAndUpdate(
+      { student: userId, video: videoId },
+      { 
+        $inc: { questionsAsked: 1 },
+        $set: { lastWatched: new Date() }
+      },
+      { new: true, upsert: true }
+    );
+  } catch (error) {
+    console.error('Helper function error tracking question:', error);
+  }
+}

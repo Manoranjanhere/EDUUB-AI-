@@ -10,6 +10,8 @@ import VideoPlayer from "./components/video/VideoPlayer";
 import VideoUpload from "./components/video/VideoUpload";
 import { AuthProvider } from "./context/AuthContext";
 import Channel from "./components/channel/ChannelInfo";
+import StudentReport from "./components/student/StudentReport";
+import AdminPanel from "./components/admin/AdminPanel";
 
 import "./App.css";
 
@@ -188,6 +190,9 @@ function App() {
                 <Route path="/video/:id" element={<VideoPlayer />} />
                 <Route path="/upload" element={<VideoUpload />} />
                 <Route path="/channel" element={<Channel />} />
+                <Route path="/student/report" element={<StudentReport />} />
+                <Route path="/admin/dashboard" element={<AdminPanel />} /> {/* Add this line */}
+
               </Routes>
             </main>
           </div>

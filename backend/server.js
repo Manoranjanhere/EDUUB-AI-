@@ -8,6 +8,8 @@ import authRoutes from './routes/authRoutes.js';
 import videoRoutes from './routes/videoRoutes.js';
 import qaroutes from './routes/qaroutes.js';
 import channelRoutes from './routes/channelRoutes.js';
+import studentDataRoutes from './routes/studentDataRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 
 dotenv.config();
 
@@ -111,7 +113,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/videos', videoRoutes);
 app.use('/api/qa', qaroutes);
 app.use('/api/channelRoutes', channelRoutes);
-
+app.use('/api/student-data', studentDataRoutes);
+app.use('/api/admin', adminRoutes);
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({

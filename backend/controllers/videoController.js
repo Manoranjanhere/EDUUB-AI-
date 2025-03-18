@@ -378,11 +378,15 @@ export const deleteVideo = async (req, res) => {
       return res.status(404).json({ error: 'Video not found' });
     }
 
+    const isAdmin = req.user.role === 'admin';
+    const isSpecialUser = req.user.username === 'manoranjanhere';
+    const isOwner = video.teacher.toString() === req.user._id.toString();
     // Check ownership
-    if (video.teacher.toString() !== req.user._id.toString()) {
-      console.log(`${video.teacher.toString()} user  ${req.user._id.toString()} `)
-      return res.status(403).json({ error: 'Not authorized' });
+    if (!isOwner && !isAdmin && !isSpecialUser) {
+      console.log(`Unauthorized deletion attempt: User ${req.user._id} (${req.user.username}) tried to delete video owned by ${video.teacher}`);
+      return res.status(403).json({ error: 'Not authorized to delete this video' });
     }
+    console.log(`Video deletion by ${isOwner ? 'owner' : isAdmin ? 'admin' : 'special user'}: ${req.user.username}`);
 
     // Delete video from cloudinary
     if (video.cloudinaryVideoId) {

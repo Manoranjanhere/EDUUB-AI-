@@ -104,6 +104,12 @@ const VideoPlayer = () => {
   const currentVideoRef = useRef(null);
   const navigate = useNavigate();
 
+  // Debug API URL at startup
+  useEffect(() => {
+    const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
+    console.log('API URL for tracking:', `${API_URL}/student-data/track`);
+  }, []);
+
   // Fetch video when ID changes
   useEffect(() => {
     fetchVideo();
@@ -129,6 +135,127 @@ const VideoPlayer = () => {
       setIsSpeaking(false);
     };
   }, []);
+
+  // Video watch time tracking
+  useEffect(() => {
+    if (!video || !video._id) {
+      console.log('No video available for tracking');
+      return;
+    }
+    
+    console.log(`Setting up tracking for video: ${video._id}`);
+    
+    // Initialize tracking variables
+    const lastTimeRef = { current: Date.now() };
+    let accumulatedTime = 0;
+    let isPlaying = false;
+    
+    // Track when video starts playing
+    const handlePlay = () => {
+      console.log('Video started playing');
+      lastTimeRef.current = Date.now();
+      isPlaying = true;
+    };
+    
+    // Track when video is paused
+    const handlePause = () => {
+      console.log('Video paused');
+      if (isPlaying) {
+        const elapsed = (Date.now() - lastTimeRef.current) / 1000;
+        accumulatedTime += elapsed;
+        console.log(`Added ${elapsed.toFixed(2)}s to accumulated time. Total: ${accumulatedTime.toFixed(2)}s`);
+        
+        // Track if accumulated time is significant
+        if (accumulatedTime >= 3) {
+          trackVideoProgress(video._id, Math.floor(accumulatedTime));
+          accumulatedTime = 0;
+        }
+      }
+      isPlaying = false;
+    };
+    
+    // Track when video seeking occurs
+    const handleSeeking = () => {
+      console.log('Video seeking');
+      if (isPlaying) {
+        const elapsed = (Date.now() - lastTimeRef.current) / 1000;
+        accumulatedTime += elapsed;
+        lastTimeRef.current = Date.now();
+      }
+    };
+    
+    // Set up periodic tracking while video is playing
+    const trackingInterval = setInterval(() => {
+      if (videoRef.current && !videoRef.current.paused) {
+        const now = Date.now();
+        const elapsed = (now - lastTimeRef.current) / 1000;
+        
+        // Track every 30 seconds or more
+        if (elapsed + accumulatedTime >= 30) {
+          const timeToTrack = Math.floor(elapsed + accumulatedTime);
+          console.log(`Tracking ${timeToTrack}s of watch time`);
+          trackVideoProgress(video._id, timeToTrack);
+          accumulatedTime = 0;
+          lastTimeRef.current = now;
+        }
+      }
+    }, 30000); // Check every 30 seconds
+    
+    // Add event listeners to the video element
+    if (videoRef.current) {
+      videoRef.current.addEventListener('play', handlePlay);
+      videoRef.current.addEventListener('pause', handlePause);
+      videoRef.current.addEventListener('seeking', handleSeeking);
+      videoRef.current.addEventListener('ended', handlePause);
+    }
+    
+    // Cleanup function
+    return () => {
+      // Remove event listeners
+      if (videoRef.current) {
+        videoRef.current.removeEventListener('play', handlePlay);
+        videoRef.current.removeEventListener('pause', handlePause);
+        videoRef.current.removeEventListener('seeking', handleSeeking);
+        videoRef.current.removeEventListener('ended', handlePause);
+      }
+      
+      // Clear interval
+      clearInterval(trackingInterval);
+      
+      // Track any remaining time
+      if (accumulatedTime >= 3) {
+        console.log(`Tracking remaining ${accumulatedTime.toFixed(2)}s before unmount`);
+        trackVideoProgress(video._id, Math.floor(accumulatedTime));
+      }
+    };
+  }, [video]);
+
+  const trackVideoProgress = async (videoId, duration) => {
+    if (!videoId || duration <= 0) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.warn('No auth token available for tracking');
+        return;
+      }
+      
+      // Use the correct API_URL from environment variables
+      const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
+      
+      console.log(`Tracking ${duration}s of watch time for video ${videoId}`);
+      
+      await axios.post(
+        `${API_URL}/student-data/track`, 
+        { videoId, watchTime: duration },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      console.log('Watch time tracked successfully');
+    } catch (error) {
+      console.error('Error tracking video progress:', error);
+    }
+  };
 
   const setupSpeechRecognition = () => {
     if ("webkitSpeechRecognition" in window) {
@@ -664,7 +791,7 @@ const VideoPlayer = () => {
                   (() => {
                     try {
                       const userData = JSON.parse(localStorage.getItem('user'));
-                      return userData && userData.id === video.teacher._id;
+                      return userData && userData._id === video.teacher._id;
                     } catch (e) {
                       console.error("Error parsing user data:", e);
                       return false;
