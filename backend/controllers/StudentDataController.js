@@ -7,13 +7,6 @@ export const trackWatchTime = async (req, res) => {
   try {
     const { videoId, watchTime } = req.body;
     
-    console.log('Track watch time request received:', {
-      userId: req.user?._id,
-      username: req.user?.username,
-      videoId,
-      watchTime
-    });
-    
     if (!videoId) {
       return res.status(400).json({
         success: false,
