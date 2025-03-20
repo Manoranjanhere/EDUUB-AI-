@@ -64,3 +64,57 @@
   .search-button {
     margin-left: 8px !important;
   }
+ /* Voice search styles */
+.search-bar.listening {
+  border: 1px solid rgba(255, 0, 0, 0.5);
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.voice-active {
+  position: relative;
+}
+
+/* Fix the mic progress positioning */
+.mic-progress {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+
+.search-error {
+  color: #f44336;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  text-align: center;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.voice-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+  color: #f44336;
+  font-size: 0.85rem;
+}
