@@ -340,6 +340,16 @@ const trackVideoProgress = async (videoId, duration) => {
       alert("Video not loaded yet. Please wait.");
       return;
     }
+  
+    // Pause the video when starting to listen
+    if (videoRef.current && !videoRef.current.paused) {
+      console.log('Pausing video for voice question');
+      videoRef.current.pause();
+    }
+    if (!video) {
+      alert("Video not loaded yet. Please wait.");
+      return;
+    }
 
     if (window.recognition) {
       console.log(`Starting voice recognition with ${activeSearchType} search`);

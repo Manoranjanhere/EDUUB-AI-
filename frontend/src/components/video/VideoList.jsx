@@ -72,6 +72,16 @@ const VideoList = ({ teacherId = null }) => {
   };
 
   const startListening = () => {
+    if (!video) {
+      alert("Video not loaded yet. Please wait.");
+      return;
+    }
+  
+    // Pause the video when starting to listen
+    if (videoRef.current && !videoRef.current.paused) {
+      console.log('Pausing video for voice question');
+      videoRef.current.pause();
+    }
     setQueryError(null);
     if (window.recognition) {
       setIsListening(true);
