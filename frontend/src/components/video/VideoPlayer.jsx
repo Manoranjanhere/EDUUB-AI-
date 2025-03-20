@@ -830,7 +830,14 @@ const trackVideoProgress = async (videoId, duration) => {
                   (() => {
                     try {
                       const userData = JSON.parse(localStorage.getItem('user'));
-                      return userData && userData._id === video.teacher._id;
+                      const userId = userData?.id || userData?._id;
+                      const teacherId = typeof video.teacher === 'object' ? 
+                        video.teacher._id : video.teacher;
+                      
+                      // Also allow admins to delete videos
+                      const isAdmin = userData?.role === 'admin' || userData?.username === 'manoranjanhere';
+                      
+                      return userId === teacherId || isAdmin;
                     } catch (e) {
                       console.error("Error parsing user data:", e);
                       return false;
