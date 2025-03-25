@@ -494,7 +494,7 @@ const trackVideoProgress = async (videoId, duration) => {
     } catch (error) {
       console.error("Error getting answer:", error);
       setAnswer(null);
-      alert("Failed to get answer. Check console for details.");
+      alert("Failed to get answer. Login again.");
     }
   };
 
