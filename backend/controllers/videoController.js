@@ -7,7 +7,7 @@ import { dirname } from 'path';
 import fs from 'fs';  // Add this import
 import multer from 'multer';  // Also add this if not already imported
 import ffmpeg from 'fluent-ffmpeg';  // And this for audio extraction
-import { spawn } from 'child_process';
+import { AssemblyAI } from 'assemblyai';
 import * as ChromaDB from 'chromadb'; // Correct import
 
 
@@ -23,6 +23,10 @@ const modelDir = path.join(__dirname, '.model');
   if (!fs.existsSync(dir)) fs.mkdirSync(dir);
 });
 
+// Initialize AssemblyAI client
+const assemblyaiClient = new AssemblyAI({
+  apiKey: "92d473cb4086427a9514b0e50159d2ae"
+});
 
 // Update multer configuration
 const storage = multer.diskStorage({
@@ -87,39 +91,37 @@ const uploadToCloudinary = async (filePath, options) => {
   });
 };
 
-const transcribeAudio = (audioPath, language = null) => {
-  return new Promise((resolve, reject) => {
-    const args = [TRANSCRIBE_SCRIPT, audioPath];
-    if (language) args.push(language);
-
-    const python = spawn('python', args, {
-      env: { ...process.env, PYTHONIOENCODING: 'utf-8' }
+const transcribeAudio = async (audioPath) => {
+  try {
+    // First upload the audio file to Cloudinary
+    const audioResult = await uploadToCloudinary(audioPath, {
+      resource_type: 'raw',
+      folder: 'audio'
     });
 
-    let transcriptData = null;
+    // Use the Cloudinary URL for AssemblyAI transcription
+    const transcript = await assemblyaiClient.transcripts.create({
+      audio_url: audioResult.secure_url,
+      language_code: 'en'
+    });
 
-    python.stdout.on('data', (data) => {
-      try {
-        const result = JSON.parse(data.toString());
-        transcriptData = result;
-      } catch (e) {
-        console.error('Failed to parse transcript:', e);
+    // Wait for transcription to complete
+    let transcriptResult;
+    while (true) {
+      transcriptResult = await assemblyaiClient.transcripts.get(transcript.id);
+      if (transcriptResult.status === 'completed') {
+        break;
+      } else if (transcriptResult.status === 'error') {
+        throw new Error('Transcription failed');
       }
-    });
-    python.stderr.on('data', (data) => {
-      if (!data.toString().includes('FP16')) {
-        console.error(`Transcription Error: ${data}`);
-      }
-    });
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before checking again
+    }
 
-    python.on('close', (code) => {
-      if (code !== 0 || !transcriptData) {
-        reject(new Error(`Transcription failed with code ${code}`));
-        return;
-      }
-      resolve(transcriptData);
-    });
-  });
+    return transcriptResult;
+  } catch (error) {
+    console.error('Transcription error:', error);
+    throw error;
+  }
 };
 
 export const uploadVideo = async (req, res) => {
@@ -195,7 +197,7 @@ export const uploadVideo = async (req, res) => {
       });
     } catch (error) {
       console.error("❌ Transcription error:", error);
-      transcriptionResult = { text: "" };
+      transcriptionResult = { text: "", language: "en" };
     }
 
     let cloudinaryVideoId = videoResult.public_id;
@@ -216,7 +218,7 @@ export const uploadVideo = async (req, res) => {
       description,
       videoUrl: videoResult.secure_url,
       audioUrl: audioResult.secure_url,
-      transcript: transcriptionResult.text,
+      transcript: transcriptionResult.text || "",
       language: transcriptionResult.language || 'en',
       cloudinaryVideoId,
       cloudinaryAudioId,
