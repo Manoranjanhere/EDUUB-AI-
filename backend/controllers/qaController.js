@@ -290,7 +290,7 @@ Question: ${question}`;
     
     const completion = await groq.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
-      model: "mixtral-8x7b-32768",
+      model: "gemma2-9b-it",
       temperature: 0.5,
       max_tokens: 1024,
     });
