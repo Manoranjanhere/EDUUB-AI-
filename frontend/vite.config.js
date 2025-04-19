@@ -20,11 +20,37 @@ export default defineConfig({
       timeout: 120000
     },
     // Add allowed hosts 
-    allowedHosts: ['eduub.mano.systems', 'eduubserver.mano.systems', 'localhost', '64.227.152.247']
+    allowedHosts: [
+      'eduub.mano.systems', 
+      'eduubserver.mano.systems', 
+      'localhost', 
+      '127.0.0.1',
+      '64.227.152.247',
+      '167.71.229.78'
+    ],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('proxy error', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('Sending Request to the Target:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+          });
+        }
+      }
+    }
   },
   // Define environment variables
   define: {
     // Make the backend URL consistent
-    'import.meta.env.VITE_BACKEND_URL': JSON.stringify('https://eduubserver.mano.systems/api'),
+    'import.meta.env.VITE_BACKEND_URL': JSON.stringify('http://167.71.229.78:5173/api'),
   }
 });

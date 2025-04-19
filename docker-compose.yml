@@ -10,7 +10,7 @@ services:
       - CHROMA_URL=http://eduub-chromadb:8000
       - JWT_SECRET=manoranjanheremano
       - PORT=5000
-      - CORS_ORIGINS=http://64.227.152.247:5173,http://localhost:5173,https://eduub.mano.systems,https://eduubserver.mano.systems
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:5000,https://localhost:5173,https://localhost:5000,http://127.0.0.1:5173,http://127.0.0.1:5000,http://64.227.152.247:5173,https://eduub.mano.systems,http://eduub.mano.systems,http://167.71.229.78:5173
       - CLOUDINARY_CLOUD_NAME=dko27wuzc
       - CLOUDINARY_API_KEY=869282847493747
       - CLOUDINARY_API_SECRET=bzjlOOEJhvzz5TnxPeLFk5nVbaU
@@ -33,7 +33,7 @@ services:
       - "5173:80"
     environment:
       - VITE_BACKEND_URL=https://eduubserver.mano.systems/api
-      - CORS_ORIGINS=http://64.227.152.247:5173,http://localhost:5173,https://eduub.mano.systems,https://eduubserver.mano.systems
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:5000,https://localhost:5173,https://localhost:5000,http://127.0.0.1:5173,http://127.0.0.1:5000,http://64.227.152.247:5173,https://eduub.mano.systems,http://eduub.mano.systems,http://167.71.229.78:5173
     depends_on:
       - backend
     networks:

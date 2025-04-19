@@ -26,10 +26,15 @@ app.options('*', cors({
     // List all allowed origins
     const allowedOrigins = [
       'http://localhost:5173',        // Local development
+      'http://localhost:5000',        // Local backend
       'https://localhost:5173',       // Local with HTTPS
+      'https://localhost:5000',       // Local backend with HTTPS
+      'http://127.0.0.1:5173',        // Local development alternative
+      'http://127.0.0.1:5000',        // Local backend alternative
       'http://64.227.152.247:5173',   // Server IP + port
       'https://eduub.mano.systems',   // Production frontend
-      'http://eduub.mano.systems'     // Production frontend HTTP
+      'http://eduub.mano.systems',    // Production frontend HTTP
+      'http://167.71.229.78:5173'     // New server IP + port
     ];
     
     // Allow requests with no origin (like mobile apps, curl, etc.)
@@ -43,8 +48,8 @@ app.options('*', cors({
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Authorization', 'Content-Type', 'Accept', 'Origin', 'X-Requested-With']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Authorization', 'Content-Type', 'Accept', 'Origin', 'X-Requested-With', 'Access-Control-Allow-Origin']
 }));
 
 // Regular CORS middleware for all other requests
@@ -53,10 +58,15 @@ app.use(cors({
     // List all allowed origins
     const allowedOrigins = [
       'http://localhost:5173',        // Local development
+      'http://localhost:5000',        // Local backend
       'https://localhost:5173',       // Local with HTTPS
+      'https://localhost:5000',       // Local backend with HTTPS
+      'http://127.0.0.1:5173',        // Local development alternative
+      'http://127.0.0.1:5000',        // Local backend alternative
       'http://64.227.152.247:5173',   // Server IP + port
       'https://eduub.mano.systems',   // Production frontend
-      'http://eduub.mano.systems'     // Production frontend HTTP
+      'http://eduub.mano.systems',    // Production frontend HTTP
+      'http://167.71.229.78:5173'     // New server IP + port
     ];
     
     // Allow requests with no origin (like mobile apps, curl, etc.)
@@ -69,7 +79,9 @@ app.use(cors({
       callback(null, false);
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Authorization', 'Content-Type', 'Accept', 'Origin', 'X-Requested-With', 'Access-Control-Allow-Origin']
 }));
 
 // Simple logging middleware
