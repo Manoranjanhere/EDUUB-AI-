@@ -8,7 +8,7 @@ import SearchBar from '../common/SearchBar';
 import './VideoStyles.css';
 
 // Define API URL with fallback
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'https://eduubserver.mano.systems/api';
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://167.71.229.78:5000/api';
 
 const VideoList = ({ teacherId = null }) => {
   const [videos, setVideos] = useState([]);

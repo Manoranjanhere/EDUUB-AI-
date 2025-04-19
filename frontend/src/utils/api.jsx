@@ -3,7 +3,7 @@
 import axios from 'axios';
 
 // Create consistent API URL
-const API_URL = 'https://eduubserver.mano.systems/api';
+const API_URL = 'http://167.71.229.78:5000/api';
 
 const api = axios.create({
   baseURL: API_URL,

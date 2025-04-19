@@ -13,24 +13,22 @@ export default defineConfig({
     hmr: {
       // Use clientPort: 443 for HTTPS connections
       clientPort: 443,
-      // Remove the host property or set it to the public domain
-      host: 'eduub.mano.systems',
+      // Use IP address instead of domain
+      host: '167.71.229.78',
       // Add these options for better compatibility
       protocol: 'wss',
       timeout: 120000
     },
     // Add allowed hosts 
     allowedHosts: [
-      'eduub.mano.systems', 
-      'eduubserver.mano.systems', 
-      'localhost', 
-      '127.0.0.1',
+      '167.71.229.78',
       '64.227.152.247',
-      '167.71.229.78'
+      'localhost', 
+      '127.0.0.1'
     ],
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://167.71.229.78:5000',
         changeOrigin: true,
         secure: false,
         ws: true,
@@ -50,7 +48,7 @@ export default defineConfig({
   },
   // Define environment variables
   define: {
-    // Make the backend URL consistent
-    'import.meta.env.VITE_BACKEND_URL': JSON.stringify('http://167.71.229.78:5173/api'),
+    // Make the backend URL consistent using IP address
+    'import.meta.env.VITE_BACKEND_URL': JSON.stringify('http://167.71.229.78:5000/api'),
   }
 });

@@ -32,9 +32,8 @@ app.options('*', cors({
       'http://127.0.0.1:5173',        // Local development alternative
       'http://127.0.0.1:5000',        // Local backend alternative
       'http://64.227.152.247:5173',   // Server IP + port
-      'https://eduub.mano.systems',   // Production frontend
-      'http://eduub.mano.systems',    // Production frontend HTTP
-      'http://167.71.229.78:5173'     // New server IP + port
+      'http://167.71.229.78:5173',    // New server IP + port
+      'http://167.71.229.78:5000'     // New server IP + backend port
     ];
     
     // Allow requests with no origin (like mobile apps, curl, etc.)
@@ -64,9 +63,8 @@ app.use(cors({
       'http://127.0.0.1:5173',        // Local development alternative
       'http://127.0.0.1:5000',        // Local backend alternative
       'http://64.227.152.247:5173',   // Server IP + port
-      'https://eduub.mano.systems',   // Production frontend
-      'http://eduub.mano.systems',    // Production frontend HTTP
-      'http://167.71.229.78:5173'     // New server IP + port
+      'http://167.71.229.78:5173',    // New server IP + port
+      'http://167.71.229.78:5000'     // New server IP + backend port
     ];
     
     // Allow requests with no origin (like mobile apps, curl, etc.)

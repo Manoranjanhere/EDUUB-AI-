@@ -6,7 +6,7 @@ RUN npm install
 COPY . .
 
 # Create .env file with environment variables
-RUN echo "VITE_BACKEND_URL=https://eduubserver.mano.systems/api" > .env
+RUN echo "VITE_BACKEND_URL=http://167.71.229.78:5000/api" > .env
 
 # Build the app
 RUN npm run build
