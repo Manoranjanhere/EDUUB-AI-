@@ -11,7 +11,7 @@ RUN echo "VITE_BACKEND_URL=http://167.71.229.78:5000/api" > .env
 # Build the app
 RUN npm run build
 
-# Production stage using Nginx for serving static files
+# Production stage using Nginx for serving static filesd
 FROM nginx:alpine
 
 # Copy built files
