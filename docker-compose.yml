@@ -30,7 +30,7 @@ services:
     image: eduub_frontend:latest
     container_name: eduub-frontend
     ports:
-      - "5173:80"
+      - "5173:5173"
     environment:
       - VITE_BACKEND_URL=http://167.71.229.78:5000/api
       - CORS_ORIGINS=http://localhost:5173,http://localhost:5000,https://localhost:5173,https://localhost:5000,http://127.0.0.1:5173,http://127.0.0.1:5000,http://64.227.152.247:5173,http://167.71.229.78:5173,http://167.71.229.78:5000
