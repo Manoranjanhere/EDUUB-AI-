@@ -11,33 +11,29 @@ export default defineConfig({
     cors: true,
     // Fix the HMR configuration
     hmr: {
-      // Use clientPort: 443 for HTTPS connections
       clientPort: 5173,
-      // Use IP address instead of domain
-      host: '167.71.229.78',
-      // Add these options for better compatibility
+      // Remove specific host references for Vercel deployment
       protocol: 'wss',
       timeout: 120000
     },
     // Add allowed hosts 
     allowedHosts: [
-      '167.71.229.78',
-      '64.227.152.247',
       'localhost', 
-      '127.0.0.1'
+      '127.0.0.1',
+      'eduub-ai.vercel.app'
     ],
     proxy: {
       '/api': {
-        target: 'http://167.71.229.78:5000',
+        target: 'https://eduub-ai.onrender.com',
         changeOrigin: true,
-        secure: false,
+        secure: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
   },
   // Define environment variables
   define: {
-    // Make the backend URL consistent using IP address
-    'process.env.VITE_BACKEND_URL': JSON.stringify('http://167.71.229.78:5000')
+    // Set the backend URL to the new domain
+    'process.env.VITE_BACKEND_URL': JSON.stringify('https://eduub-ai.onrender.com/api')
   }
 });

@@ -1,13 +1,16 @@
-FROM node:18-slim
+FROM node:18-alpine as build
 
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
+COPY package.json package-lock.json ./
+RUN npm ci
+
 COPY . .
+RUN echo "VITE_BACKEND_URL=https://eduub-ai.onrender.com/api" > .env
+RUN npm run build
 
-# Create .env file with environment variables
-RUN echo "VITE_BACKEND_URL=http://167.71.229.78:5000/api" > .env
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 5173
-
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

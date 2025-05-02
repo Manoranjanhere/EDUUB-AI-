@@ -104,9 +104,11 @@ const VideoPlayer = () => {
   const currentVideoRef = useRef(null);
   const navigate = useNavigate();
 
+  // Define API URL with environment variable and fallback to production URL
+  const API_URL = import.meta.env.VITE_BACKEND_URL || 'https://eduub-ai.onrender.com/api';
+
   // Debug API URL at startup
   useEffect(() => {
-    const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
     console.log('API URL for tracking:', `${API_URL}/student-data/track`);
   }, []);
 
@@ -244,8 +246,6 @@ const trackVideoProgress = async (videoId, duration) => {
     }
     
     // Use the correct API_URL
-    const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
-    
     console.log(`Tracking ${duration}s of watch time for video ${videoId}`);
     
     // Send the tracking data
@@ -371,7 +371,7 @@ const trackVideoProgress = async (videoId, duration) => {
     try {
       const token = localStorage.getItem("token");
       await axios.delete(
-        `${import.meta.env.VITE_BACKEND_URL}/videos/${videoId}`,
+        `${API_URL}/videos/${videoId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -461,7 +461,7 @@ const trackVideoProgress = async (videoId, duration) => {
       );
 
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/qa`,
+        `${API_URL}/qa`,
         {
           videoId: currentVideo._id,
           question: question,
@@ -523,7 +523,7 @@ const trackVideoProgress = async (videoId, duration) => {
       console.log("Fetching video with ID:", id);
 
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/videos/${id}`,
+        `${API_URL}/videos/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

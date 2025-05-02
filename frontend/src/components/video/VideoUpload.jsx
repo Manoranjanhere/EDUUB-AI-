@@ -33,34 +33,35 @@ const VideoUpload = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!formData.video || !formData.title) {
-      alert('Please select a video and provide a title');
+  // Use the new backend URL for video uploads
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (!formData.title || !formData.description || !formData.video) {
+      alert('Please fill in all fields and select a file');
       return;
     }
-
-    const submitFormData = new FormData();
-    submitFormData.append('videoFile', formData.video);
-    submitFormData.append('title', formData.title);
-    submitFormData.append('description', formData.description || '');
-
-    // Debug logs
-    console.log('Form Data Contents:');
-    for (let pair of submitFormData.entries()) {
-      console.log(pair[0], pair[1]);
-    }
-
+    
+    setUploading(true);
+    setUploadProgress(0);
+    
     try {
-      setUploading(true);
+      // Create form data for file upload
+      const submitFormData = new FormData();
+      submitFormData.append('video', formData.video);
+      submitFormData.append('title', formData.title);
+      submitFormData.append('description', formData.description);
+      
+      // Get authentication token
       const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication required. Please log in.');
+      }
       
       console.log('Making request to:', `${import.meta.env.VITE_BACKEND_URL}/videos/upload`);
-      console.log('Token:', token ? 'Present' : 'Missing');
-
+      
+      // Send upload request to backend
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/videos/upload`,
+        `${import.meta.env.VITE_BACKEND_URL || 'https://eduub-ai.onrender.com/api'}/videos/upload`,
         submitFormData,
         {
           headers: {
@@ -68,23 +69,30 @@ const VideoUpload = () => {
             'Authorization': `Bearer ${token}`
           },
           onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
             setUploadProgress(percentCompleted);
           }
         }
       );
-
-      if (response.data.success) {
-        navigate(`/video/${response.data.data._id}`);
-      }
+      
+      console.log('Upload response:', response.data);
+      
+      // Reset form on success
+      setFormData({
+        title: '',
+        description: '',
+        video: null
+      });
+      setPreview('');
+      
+      // Navigate to home page to see the newly uploaded video
+      navigate('/');
+      
     } catch (error) {
       console.error('Upload error:', error);
-      alert(error.response?.data?.error || 'Upload failed');
+      alert(error.response?.data?.error || 'Upload failed. Please try again.');
     } finally {
       setUploading(false);
-      setUploadProgress(0);
     }
   };
 

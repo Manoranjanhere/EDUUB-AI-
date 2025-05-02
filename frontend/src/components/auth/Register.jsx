@@ -32,6 +32,7 @@ const Register = () => {
   });
   const [error, setError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,6 +44,16 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSubmitting(true);
+
+    // Validate form
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      setSubmitting(false);
+      return;
+    }
+
     try {
       const submitData = {
         ...formData,
@@ -53,7 +64,7 @@ const Register = () => {
       };
 
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/auth/register`,
+        `${import.meta.env.VITE_BACKEND_URL || 'https://eduub-ai.onrender.com/api'}/auth/register`,
         submitData
       );
 
@@ -73,6 +84,8 @@ const Register = () => {
     } catch (err) {
       setError(err.response?.data?.error || 'Registration failed');
       console.error('Registration error:', err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -196,6 +209,7 @@ const Register = () => {
               variant="contained"
               className="auth-button"
               sx={{ mt: 3, mb: 2 }}
+              disabled={submitting}
             >
               Sign Up
             </Button>

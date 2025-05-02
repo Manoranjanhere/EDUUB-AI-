@@ -3,6 +3,7 @@ import Groq from 'groq-sdk';
 import say from 'say';
 import dotenv from 'dotenv';
 import * as ChromaDB from 'chromadb'; // Correct import
+import StudentData from '../models/StudentData.js';
 
 dotenv.config();
 
@@ -18,28 +19,6 @@ let speechTimeoutCheck = null;
 const chromaClient = new ChromaDB.ChromaClient({
   path: process.env.CHROMA_URL || "http://eduub-chromadb:8000"  // Match your container name
 });
-
-// Function to setup a timeout to check for abandoned speech
-// const setupSpeechTimeout = () => {
-//   // Clear any existing timeout
-//   if (speechTimeoutCheck) {
-//     clearTimeout(speechTimeoutCheck);
-//   }
-  
-//   // Create new timeout - check every 30 seconds if speech is still active
-//   speechTimeoutCheck = setTimeout(() => {
-//     if (activeSpeech) {
-//       console.log('Speech appears to be abandoned (client disconnected), stopping...');
-//       say.stop();
-//       activeSpeech = null;
-//     }
-//     // Setup the next check
-//     setupSpeechTimeout();
-//   }, 30000); // 30 seconds
-// };
-
-// // Start the check when the server starts
-// setupSpeechTimeout();
 
 // Add this function definition
 async function testChromaConnection() {
@@ -65,35 +44,7 @@ export const stopSpeech = async (req, res) => {
     }
   } catch (error) {
     console.error('Error stopping speech:', error);
-    return res.status(500).json({ success: false, error: error.message });
-  }
-};
-
-// Add this function for starting speech
-export const startSpeech = async (req, res) => {
-  try {
-    const { text } = req.body;
-    
-    if (!text) {
-      return res.status(400).json({ success: false, error: 'No text provided' });
-    }
-    
-    // Stop any existing speech
-    if (activeSpeech) {
-      say.stop();
-    }
-    
-    // Start new speech
-    activeSpeech = text;
-    say.speak(text, null, null, (err) => {
-      if (err) console.error('Text-to-speech error:', err);
-      activeSpeech = null;
-    });
-    
-    return res.json({ success: true, message: 'Speech started' });
-  } catch (error) {
-    console.error('Error starting speech:', error);
-    return res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({ success: false, error: 'Error stopping speech' });
   }
 };
 
@@ -157,54 +108,42 @@ export const handleQA = async (req, res) => {
     // Handle different search types
     if (searchType === 'near' && currentTime) {
       // Near Time: Extract context from around the current timestamp
-      console.log(`🔍 Performing Near Time search around timestamp: ${currentTime}s`);
+      console.log('Using near-time search:', currentTime);
       
-      // Use transcript directly from the video document
-      const fullTranscript = video.transcript || '';
-      
-      if (fullTranscript && fullTranscript.length > 0) {
-        // Get approximate word position based on timestamp
-        // Assuming average speaking rate of ~150 words per minute = 2.5 words per second
-        const wordsPerSecond = 2.5;
-        const approxWordPosition = Math.floor(currentTime * wordsPerSecond);
+      // If there's a transcript, process it for near time search
+      if (video.transcript) {
+        // For now, just use the full transcript as fallback
+        context = video.transcript;
         
-        // Extract context around the current position
-        const words = fullTranscript.split(/\s+/);
-        
-        // Find starting position, ensuring we don't go below 0
-        // Use exactly 100 words before, as requested
-        const contextStartWord = Math.max(0, approxWordPosition - 100);
-        
-        // Get the context (100 words before + 100 words after = 200 words total)
-        const contextWords = words.slice(contextStartWord, contextStartWord + 200);
-        context = contextWords.join(' ');
-        
-        console.log('✅ Using Near Time context:', {
-          timestamp: currentTime,
-          approximateWordPosition: approxWordPosition,
-          contextLength: context.length,
-          wordCount: contextWords.length,
-          contextStartWord: contextStartWord,
-          transcriptTotalWords: words.length,
-          contextPreview: context
-        });
+        // TODO: Add timestamp-based search when transcript has timestamps
       } else {
-        console.log('⚠️ No transcript available for Near Time search, using empty context');
-        context = '';
+        console.warn('⚠️ No transcript available for timestamp search');
+        context = "No transcript available for timestamp search.";
       }
     } else if (chromaConnected) {
-      // General search: Use ChromaDB for semantic search
-      console.log('🔍 Performing General search using ChromaDB');
+      // General search: Check ChromaDB for the video transcript
+      console.log('Using ChromaDB for general search');
       try {
-        // Use the teacher's ID for the collection since they own the videos
-        const collectionName = `user_${video.teacher}_transcripts`;
-        console.log(`Using collection: ${collectionName}`);
+        // First check if the collection exists
+        let collection;
+        try {
+          // Try to get the existing collection
+          collection = await chromaClient.getCollection({
+            name: "video_transcripts"
+          });
+          console.log('Found existing ChromaDB collection');
+        } catch (err) {
+          console.log('Collection not found, creating new one');
+          // Create a new collection if it doesn't exist
+          collection = await chromaClient.createCollection({
+            name: "video_transcripts",
+            metadata: { "description": "Video transcripts for semantic search" }
+          });
+        }
         
-        const collection = await chromaClient.getOrCreateCollection({ name: collectionName });
-        
-        // First check if this document exists in the collection
+        // Check if this video's transcript is in the collection
         const docCheck = await collection.get({
-          ids: [videoId.toString()]
+          where_document_ids: [videoId.toString()]
         });
         
         if (!docCheck || !docCheck.ids || docCheck.ids.length === 0) {
@@ -228,54 +167,33 @@ export const handleQA = async (req, res) => {
           
           // Add distance metrics for debugging
           if (results && results.distances && results.distances[0]) {
-            console.log(`Distance metrics for query "${question.substring(0, 30)}...":`);
-            console.log(`- Closest distance: ${Math.min(...results.distances[0])}`);
-            console.log(`- All distances: ${results.distances[0].join(', ')}`);
+            console.log('Result distances:', results.distances[0]);
           }
           
-          // Check if results exist AND are semantically relevant
+          // If we got results, use them as context
           if (results && 
-              results.distances && 
-              results.distances[0] &&
-              results.distances[0].length > 0 &&
               results.documents && 
               results.documents[0] && 
               results.documents[0].length > 0) {
-            
-            // Get the closest distance (lower is better)
-            const closestDistance = Math.min(...results.distances[0]);
-            
-            // Only use results if they're reasonably close (adjust threshold as needed)
-            if (closestDistance < 1.5) {  // Threshold value
-              context = results.documents[0].join('\n\n');
-              console.log('✅ Found RELEVANT transcript parts in ChromaDB:', {
-                segments: results.documents[0].length,
-                contextLength: context.length,
-                relevanceScore: closestDistance,
-                contextPreview: context
-              });
-            } else {
-              console.log('⚠️ Results found but NOT RELEVANT enough (distance: ' + closestDistance + '), falling back to full transcript');
-              context = video.transcript || '';
-            }
+            context = results.documents[0].join('\n\n');
+            console.log('✅ Using ChromaDB context snippet, length:', context.length);
           } else {
-            console.log('⚠️ No proper results structure from ChromaDB, falling back to full transcript');
+            console.log('⚠️ No relevant context found in ChromaDB, falling back to full transcript');
             context = video.transcript || '';
           }
         }
-      } catch (error) {
-        console.error('Error querying ChromaDB:', error);
-        console.warn('⚠️ Falling back to full transcript due to ChromaDB error');
+      } catch (chromaError) {
+        console.error('❌ ChromaDB query error:', chromaError);
         context = video.transcript || '';
       }
     } else {
-      // ChromaDB not available, use full transcript
-      console.log('ChromaDB not connected, using full transcript');
+      // Fallback: Use the full transcript from the database
+      console.log('Using full transcript from database');
       context = video.transcript || '';
     }
     
-    // Ensure we have some context
-    if (!context || context.trim().length === 0) {
+    // If still no context, provide a fallback message
+    if (!context || context.trim() === '') {
       console.warn('⚠️ No transcript available');
       context = "No transcript available for this video.";
     }
@@ -316,9 +234,6 @@ Question: ${question}`;
   }
 };
 
-// Add the StudentData import at the top of the file
-import StudentData from '../models/StudentData.js';
-
 // Define the trackQuestion function
 async function trackQuestion(userId, videoId) {
   try {
@@ -335,3 +250,43 @@ async function trackQuestion(userId, videoId) {
     console.error('Helper function error tracking question:', error);
   }
 }
+
+// Speech synthesis
+export const startSpeech = async (req, res) => {
+  try {
+    const { text } = req.body;
+    
+    if (!text) {
+      return res.status(400).json({
+        success: false,
+        error: 'Text is required'
+      });
+    }
+    
+    // Stop any existing speech
+    if (activeSpeech) {
+      say.stop();
+    }
+    
+    // Start speaking
+    say.speak(text, undefined, 1.0, (err) => {
+      if (err) {
+        console.error('Error in text-to-speech:', err);
+      }
+      activeSpeech = null;
+    });
+    
+    activeSpeech = text;
+    
+    return res.json({
+      success: true,
+      message: 'Speech started'
+    });
+  } catch (error) {
+    console.error('Error starting speech:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Error starting speech'
+    });
+  }
+};

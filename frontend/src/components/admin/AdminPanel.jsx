@@ -37,45 +37,56 @@ const AdminPanel = () => {
     }
   }, [user, navigate]);
 
+  // Fetch all students data
   const fetchStudentProgress = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await getStudentProgress();
-      
-      if (response.success) {
-        setStudentProgress(response.data);
+      const result = await getStudentProgress();
+      if (result.success) {
+        setStudentData(result.data);
         setError(null);
       } else {
-        setError(response.message || 'Failed to load student progress');
+        setError(result.message || 'Failed to fetch student progress');
       }
     } catch (error) {
-      console.error('Error in admin panel:', error);
-      setError('Something went wrong while loading the data');
+      console.error('Error in AdminPanel:', error);
+      setError('Failed to load student data');
     } finally {
       setLoading(false);
     }
   };
 
+  // For analytics dashboard
   const fetchAllVideos = async () => {
     try {
-      setVideoLoading(true);
       const token = localStorage.getItem('token');
-      const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
+      if (!token) {
+        setVideosError('Authentication required');
+        return;
+      }
       
-      const response = await axios.get(
-        `${API_URL}/videos`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (response.data.success) {
-        setAllVideos(response.data.data);
+      // Define API URL with environment variable and fallback to new production URL
+      const API_URL = import.meta.env.VITE_BACKEND_URL || 'https://eduub-ai.onrender.com/api';
+      
+      const response = await fetch(`${API_URL}/videos`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch videos');
+      }
+      
+      const data = await response.json();
+      if (data.success) {
+        setVideos(data.data);
       } else {
-        console.error('Failed to fetch videos');
+        throw new Error(data.message || 'Failed to fetch videos');
       }
     } catch (error) {
       console.error('Error fetching videos:', error);
-    } finally {
-      setVideoLoading(false);
+      setVideosError(error.message);
     }
   };
 

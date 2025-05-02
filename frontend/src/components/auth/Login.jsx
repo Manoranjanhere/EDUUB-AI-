@@ -21,6 +21,7 @@ const Login = () => { // Capitalize the component name
     password: '',
   });
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,9 +33,12 @@ const Login = () => { // Capitalize the component name
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSubmitting(true);
+
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
+        `${import.meta.env.VITE_BACKEND_URL || 'https://eduub-ai.onrender.com/api'}/auth/login`,
         formData
       );
       
@@ -44,6 +48,8 @@ const Login = () => { // Capitalize the component name
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.error || 'An error occurred during login');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -99,6 +105,7 @@ const Login = () => { // Capitalize the component name
               variant="contained"
               className="auth-button"
               sx={{ mt: 2, mb: 2 }}
+              disabled={submitting}
             >
               Sign In
             </Button>

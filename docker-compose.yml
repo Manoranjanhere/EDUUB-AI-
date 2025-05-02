@@ -1,16 +1,27 @@
+version: '3.8'
 services:
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: eduub-chromadb
+    volumes:
+      - ./chroma-data:/chroma/chroma
+    ports:
+      - "8000:8000"
+    networks:
+      - app-network
+    restart: unless-stopped
+
   backend:
-    build: ./backend
+    build:
+      context: ./backend
     image: eduub_backend:latest
     container_name: eduub-backend
     ports:
       - "5000:5000"
     environment:
-      - MONGODB_URI=mongodb+srv://manoranjanheremano:gJbpCkWHuV1NeTgQ@cluster0.iprim.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:5000,https://localhost:5173,https://localhost:5000,http://127.0.0.1:5173,http://127.0.0.1:5000,https://eduub-ai.vercel.app,https://eduub-ai.onrender.com
       - CHROMA_URL=http://eduub-chromadb:8000
-      - JWT_SECRET=manoranjanheremano
-      - PORT=5000
-      - CORS_ORIGINS=http://localhost:5173,http://localhost:5000,https://localhost:5173,https://localhost:5000,http://127.0.0.1:5173,http://127.0.0.1:5000,http://64.227.152.247:5173,http://167.71.229.78:5173,http://167.71.229.78:5000
+      - NODE_ENV=production
       - CLOUDINARY_CLOUD_NAME=dko27wuzc
       - CLOUDINARY_API_KEY=869282847493747
       - CLOUDINARY_API_SECRET=bzjlOOEJhvzz5TnxPeLFk5nVbaU
@@ -30,25 +41,12 @@ services:
     image: eduub_frontend:latest
     container_name: eduub-frontend
     ports:
-      - "5173:5173"
+      - "5173:80"
     environment:
-      - VITE_BACKEND_URL=http://167.71.229.78:5000/api
-      - CORS_ORIGINS=http://localhost:5173,http://localhost:5000,https://localhost:5173,https://localhost:5000,http://127.0.0.1:5173,http://127.0.0.1:5000,http://64.227.152.247:5173,http://167.71.229.78:5173,http://167.71.229.78:5000
+      - VITE_BACKEND_URL=https://eduub-ai.onrender.com/api
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:5000,https://localhost:5173,https://localhost:5000,http://127.0.0.1:5173,http://127.0.0.1:5000,https://eduub-ai.vercel.app,https://eduub-ai.onrender.com
     depends_on:
       - backend
-    networks:
-      - app-network
-    restart: unless-stopped
-
-  chromadb:
-    image: ghcr.io/chroma-core/chroma:latest
-    container_name: eduub-chromadb
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./chroma-data:/chroma/chroma
-    environment:
-      - PERSIST_DIRECTORY=/chroma/chroma
     networks:
       - app-network
     restart: unless-stopped

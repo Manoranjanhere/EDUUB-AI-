@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Container, Typography, Box, Paper, Button, CircularProgress, 
          Tab, Tabs, Divider, useTheme, useMediaQuery } from '@mui/material';
 import { PictureAsPdf, CalendarMonth, Dashboard, ArrowBack } from '@mui/icons-material';
@@ -28,8 +28,31 @@ const ProgressAnalytics = ({ goBack }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
-    fetchStudentData();
+    // Fetch student data when component mounts
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const result = await getStudentData();
+        
+        if (result.success) {
+          setStudentData(result.data);
+          setError(null);
+        } else {
+          setError(result.message || 'Failed to fetch data');
+        }
+      } catch (error) {
+        console.error('Error fetching student data:', error);
+        setError('An unexpected error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
+
+  // Define API URL with environment variable and fallback to new production URL  
+  const API_URL = import.meta.env.VITE_BACKEND_URL || 'https://eduub-ai.onrender.com/api';
 
  // In the fetchStudentData function:
 
@@ -41,7 +64,6 @@ const fetchStudentData = async () => {
       throw new Error('Authentication required');
     }
 
-    const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api';
     const response = await axios.get(
       `${API_URL}/student-data/me`,
       { headers: { Authorization: `Bearer ${token}` } }

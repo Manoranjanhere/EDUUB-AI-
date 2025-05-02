@@ -8,7 +8,7 @@ import SearchBar from '../common/SearchBar';
 import './VideoStyles.css';
 
 // Define API URL with fallback
-const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://167.71.229.78:5000/api';
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'https://eduub-ai.onrender.com/api';
 
 const VideoList = ({ teacherId = null }) => {
   const [videos, setVideos] = useState([]);

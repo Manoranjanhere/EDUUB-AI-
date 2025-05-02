@@ -2,30 +2,28 @@
 
 import axios from 'axios';
 
-// Create consistent API URL
-const API_URL = 'http://167.71.229.78:5000/api';
+// Set the base API URL
+const API_URL = 'https://eduub-ai.onrender.com/api';
 
+// Create axios instance with default config
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 30000
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-// Add request interceptor
+// Add a request interceptor to attach the token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
-    
-    // Only add token if it exists
     if (token) {
-      config.headers = {
-        ...config.headers,
-        Authorization: `Bearer ${token}`
-      };
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    
     return config;
   },
   (error) => Promise.reject(error)
 );
 
 export default api;
+export { API_URL };
