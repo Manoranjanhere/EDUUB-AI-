@@ -59,7 +59,7 @@ app.use(cors({
       'http://localhost:5000',        // Local backend
       'https://localhost:5173',       // Local with HTTPS
       'https://localhost:5000',       // Local backend with HTTPS
-      'http://127.0.0.1:5173',        // Local development alternative
+      'http://127.0.0.1:5173',        // Local development alternatives
       'http://127.0.0.1:5000',        // Local backend alternative
       'https://eduub-ai.vercel.app',  // Production frontend
       'https://eduub-ai.onrender.com' // Production backend
