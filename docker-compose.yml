@@ -14,7 +14,7 @@ services:
       - CLOUDINARY_CLOUD_NAME=dko27wuzc
       - CLOUDINARY_API_KEY=869282847493747
       - CLOUDINARY_API_SECRET=bzjlOOEJhvzz5TnxPeLFk5nVbaU
-      - GROQ_API_KEY=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
+      - GROQ_API_KEY=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
     volumes:
       - ./backend/temp:/app/controllers/temp
     depends_on:
