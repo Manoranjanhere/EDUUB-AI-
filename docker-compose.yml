@@ -6,15 +6,15 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - MONGODB_URI=mongodb+srv://manoranjanheremano:gJbpCkWHuV1NeTgQ@cluster0.iprim.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      - MONGODB_URI=${MONGODB_URI}
       - CHROMA_URL=http://eduub-chromadb:8000
-      - JWT_SECRET=manoranjanheremano
+      - JWT_SECRET=${JWT_SECRET}
       - PORT=5000
       - CORS_ORIGINS=http://64.227.152.247:5173,http://localhost:5173,https://eduub.mano.systems,https://eduubserver.mano.systems
-      - CLOUDINARY_CLOUD_NAME=dko27wuzc
-      - CLOUDINARY_API_KEY=869282847493747
-      - CLOUDINARY_API_SECRET=bzjlOOEJhvzz5TnxPeLFk5nVbaU
-      - GROQ_API_KEY=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
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - GROQ_API_KEY=${GROQ_API_KEY}
     volumes:
       - ./backend/temp:/app/controllers/temp
     depends_on:

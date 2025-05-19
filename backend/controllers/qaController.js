@@ -7,7 +7,7 @@ import * as ChromaDB from 'chromadb'; // Correct import
 dotenv.config();
 
 const groq = new Groq({ 
-  apiKey: process.env.GROQ_API_KEY || "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" 
+  apiKey: process.env.GROQ_API_KEY
 });
 
 // At the top of your file, add this variable to track speech state
