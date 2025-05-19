@@ -20,12 +20,14 @@ services:
       - "5000:5000"
     environment:
       - CORS_ORIGINS=http://localhost:5173,http://localhost:5000,https://localhost:5173,https://localhost:5000,http://127.0.0.1:5173,http://127.0.0.1:5000,https://eduub-ai.vercel.app,https://eduub-ai.onrender.com
+      - MONGODB_URI=${MONGODB_URI}
       - CHROMA_URL=http://eduub-chromadb:8000
-      - NODE_ENV=production
-      - CLOUDINARY_CLOUD_NAME=dko27wuzc
-      - CLOUDINARY_API_KEY=869282847493747
-      - CLOUDINARY_API_SECRET=bzjlOOEJhvzz5TnxPeLFk5nVbaU
-      - GROQ_API_KEY=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
+      - JWT_SECRET=${JWT_SECRET}
+      - PORT=5000
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - GROQ_API_KEY=${GROQ_API_KEY}
     volumes:
       - ./backend/temp:/app/controllers/temp
     depends_on:

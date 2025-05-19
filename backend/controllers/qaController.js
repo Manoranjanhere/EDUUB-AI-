@@ -8,7 +8,7 @@ import StudentData from '../models/StudentData.js';
 dotenv.config();
 
 const groq = new Groq({ 
-  apiKey: process.env.GROQ_API_KEY || "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" 
+  apiKey: process.env.GROQ_API_KEY 
 });
 
 // At the top of your file, add this variable to track speech state
