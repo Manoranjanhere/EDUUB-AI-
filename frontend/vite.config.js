@@ -25,6 +25,6 @@ export default defineConfig({
   // Define environment variables
   define: {
     // Make the backend URL consistent
-    'import.meta.env.VITE_BACKEND_URL': JSON.stringify('https://eduub.mano.systems/api'),
+    'import.meta.env.VITE_BACKEND_URL': JSON.stringify('https://eduubserver.mano.systems/api'),
   }
 });
