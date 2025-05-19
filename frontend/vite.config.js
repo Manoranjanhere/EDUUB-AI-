@@ -33,7 +33,7 @@ export default defineConfig({
   },
   // Define environment variables
   define: {
-    // Set the backend URL to the new domain
+    // Set the backend URL to the new domain 
     'process.env.VITE_BACKEND_URL': JSON.stringify('https://eduub-ai.onrender.com/api')
   }
 });
