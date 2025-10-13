@@ -6,8 +6,8 @@
 ## Demo Lecture Video
 Click the thumbnail below to watch a sample lecture:
 
-[![Watch Video](<img width="1919" height="926" alt="Screenshot 2025-10-13 175453" src="https://github.com/user-attachments/assets/f0295b6f-591e-4079-a187-33eed489fe7b" />
-)](https://drive.google.com/file/d/1FR-yqaIbZQRYpBglWFRslBSb1_kyY1cH/view?usp=drive_link)
+[![Watch Video](https://github.com/user-attachments/assets/f0295b6f-591e-4079-a187-33eed489fe7b)](https://drive.google.com/file/d/1FR-yqaIbZQRYpBglWFRslBSb1_kyY1cH/view?usp=drive_link)
+
 
 ## Key Features
 1. **Teacher Channels & Video Uploads**
