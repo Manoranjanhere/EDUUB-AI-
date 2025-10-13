@@ -99,6 +99,3 @@ Make sure to update the Vite configuration to run locally:
 
 ## Conclusion
 EDUUB is bridging the gap between students and teachers in online education. By making pre-recorded lectures interactive and AI-driven, students can now get **real-time, personalized answers** just like in a real classroom.
-
-For more details, visit: **eduub.mano.systems**
-
