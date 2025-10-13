@@ -3,6 +3,11 @@
 ## Overview
 **EDUUB** (eduub.mano.systems) is a futuristic learning platform designed to transform how students engage with pre-recorded lectures. Unlike traditional platforms like YouTube and Coursera, where learning is one-way, EDUUB introduces interactive Q&A features powered by **Retrieval-Augmented Generation (RAG)**. This allows students to ask questions and receive context-aware answers in real-time, making online learning more personalized and engaging.
 
+## Demo Lecture Video
+Click the thumbnail below to watch a sample lecture:
+
+[![Watch Video](bbbc26bd-35ab-4e50-8639-cf6d63485b46.png)](https://drive.google.com/file/d/1FR-yqaIbZQRYpBglWFRslBSb1_kyY1cH/view?usp=drive_link)
+
 ## Key Features
 1. **Teacher Channels & Video Uploads**
    - Teachers can create channels and upload lecture videos.
