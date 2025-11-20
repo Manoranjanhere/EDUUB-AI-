@@ -4,11 +4,15 @@ import cloudinary from '../config/cloudinary.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import fs from 'fs';
-import multer from 'multer'; 
+import fs from 'fs';  // Add this import
+import multer from 'multer';  // Also add this if not already imported
 import ffmpeg from 'fluent-ffmpeg';  // And this for audio extraction
+import ffmpegInstaller from '@ffmpeg-installer/ffmpeg'; // FFmpeg binary installer
 import { AssemblyAI } from 'assemblyai';
-import * as ChromaDB from 'chromadb';
+import * as ChromaDB from 'chromadb'; // Correct import
+
+// Set FFmpeg path from npm package
+ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -25,7 +29,7 @@ const modelDir = path.join(__dirname, '.model');
 
 // Initialize AssemblyAI client
 const assemblyaiClient = new AssemblyAI({
-  apiKey: process.env.ASSEMBLYAI_API_KEY
+  apiKey: "92d473cb4086427a9514b0e50159d2ae"
 });
 
 // Update multer configuration
@@ -156,52 +160,60 @@ export const uploadVideo = async (req, res) => {
       publicId: videoResult.public_id
     });
 
-    // 2. Extract audio
-    console.log('3. Starting audio extraction...');
-    await new Promise((resolve, reject) => {
-      ffmpeg(videoPath)
-        .toFormat('mp3')
-        .on('progress', (progress) => {
-          console.log('FFmpeg Progress:', progress);
-        })
-        .on('end', () => {
-          console.log('✅ Audio extraction completed');
-          resolve();
-        })
-        .on('error', (err) => {
-          console.error('❌ FFmpeg error:', err);
-          reject(err);
-        })
-        .save(audioPath);
-    });
-
-    // 3. Upload audio
-    console.log('4. Starting audio upload to Cloudinary...');
-    const audioResult = await uploadToCloudinary(audioPath, {
-      resource_type: 'raw',
-      folder: 'audio'
-    });
-    console.log('✅ Audio uploaded successfully:', {
-      url: audioResult.secure_url,
-      publicId: audioResult.public_id
-    });
-
-    // 4. Get transcript
-    console.log('5. Starting transcription...');
-    let transcriptionResult;
+    // 2. Extract audio (optional - skip if FFmpeg not available)
+    let audioResult = null;
+    let transcriptionResult = { text: "", language: "en" };
+    
     try {
-      transcriptionResult = await transcribeAudio(audioPath);
-      console.log('✅ Transcription completed:', {
-        textLength: transcriptionResult.text?.length || 0,
-        language: transcriptionResult.language || 'en'
+      console.log('3. Starting audio extraction...');
+      await new Promise((resolve, reject) => {
+        ffmpeg(videoPath)
+          .toFormat('mp3')
+          .on('progress', (progress) => {
+            console.log('FFmpeg Progress:', progress);
+          })
+          .on('end', () => {
+            console.log('✅ Audio extraction completed');
+            resolve();
+          })
+          .on('error', (err) => {
+            console.error('❌ FFmpeg error:', err);
+            reject(err);
+          })
+          .save(audioPath);
       });
-    } catch (error) {
-      console.error("❌ Transcription error:", error);
-      transcriptionResult = { text: "", language: "en" };
+
+      // 3. Upload audio
+      console.log('4. Starting audio upload to Cloudinary...');
+      audioResult = await uploadToCloudinary(audioPath, {
+        resource_type: 'raw',
+        folder: 'audio'
+      });
+      console.log('✅ Audio uploaded successfully:', {
+        url: audioResult.secure_url,
+        publicId: audioResult.public_id
+      });
+
+      // 4. Get transcript
+      console.log('5. Starting transcription...');
+      try {
+        transcriptionResult = await transcribeAudio(audioPath);
+        console.log('✅ Transcription completed:', {
+          textLength: transcriptionResult.text?.length || 0,
+          language: transcriptionResult.language || 'en'
+        });
+      } catch (error) {
+        console.error("❌ Transcription error:", error);
+        transcriptionResult = { text: "", language: "en" };
+      }
+    } catch (ffmpegError) {
+      console.warn('⚠️ FFmpeg not available or audio extraction failed. Video will be saved without transcript.');
+      console.warn('💡 To enable transcription, install FFmpeg: https://ffmpeg.org/download.html');
+      console.warn('   On Windows: choco install ffmpeg (with Chocolatey) or download from ffmpeg.org');
     }
 
     let cloudinaryVideoId = videoResult.public_id;
-    let cloudinaryAudioId = audioResult.public_id;
+    let cloudinaryAudioId = audioResult?.public_id || null;
 
     // 5. Check for Empty Transcript
     console.log('6. Checking transcript...');
@@ -217,7 +229,7 @@ export const uploadVideo = async (req, res) => {
       title,
       description,
       videoUrl: videoResult.secure_url,
-      audioUrl: audioResult.secure_url,
+      audioUrl: audioResult?.secure_url || null,
       transcript: transcriptionResult.text || "",
       language: transcriptionResult.language || 'en',
       cloudinaryVideoId,
