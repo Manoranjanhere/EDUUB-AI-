@@ -8,6 +8,7 @@ Click the thumbnail below to watch a sample lecture:
 
 [![Watch Video](https://github.com/user-attachments/assets/f0295b6f-591e-4079-a187-33eed489fe7b)](https://drive.google.com/file/d/1FR-yqaIbZQRYpBglWFRslBSb1_kyY1cH/view?usp=drive_link)
 
+<img width="1445" height="599" alt="image" src="https://github.com/user-attachments/assets/ea39ace9-92b7-4f23-8bed-ab28e7d2b79a" />
 
 ## Key Features
 1. **Teacher Channels & Video Uploads**
