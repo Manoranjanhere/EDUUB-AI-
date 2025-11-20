@@ -1,6 +1,4 @@
-/* Update your App.css file with absolute positioning */
 
-/* Fix 1: Make background elements cover the entire document height, not just viewport */
 .app {
   min-height: 100vh;
   background-color: var(--background-dark);

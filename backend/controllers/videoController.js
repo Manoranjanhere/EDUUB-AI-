@@ -4,11 +4,11 @@ import cloudinary from '../config/cloudinary.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import fs from 'fs';  // Add this import
-import multer from 'multer';  // Also add this if not already imported
+import fs from 'fs';
+import multer from 'multer'; 
 import ffmpeg from 'fluent-ffmpeg';  // And this for audio extraction
 import { AssemblyAI } from 'assemblyai';
-import * as ChromaDB from 'chromadb'; // Correct import
+import * as ChromaDB from 'chromadb';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -25,7 +25,7 @@ const modelDir = path.join(__dirname, '.model');
 
 // Initialize AssemblyAI client
 const assemblyaiClient = new AssemblyAI({
-  apiKey: "92d473cb4086427a9514b0e50159d2ae"
+  apiKey: process.env.ASSEMBLYAI_API_KEY
 });
 
 // Update multer configuration

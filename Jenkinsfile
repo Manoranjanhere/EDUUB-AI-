@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        NODE_VERSION = '16' // Specify the Node.js version
+        NODE_VERSION = '16'
     }
 
     stages {
@@ -15,7 +15,6 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Install Node.js and dependencies
                     sh 'nvm install $NODE_VERSION'
                     sh 'npm install'
                 }
@@ -25,7 +24,6 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    // Build the project
                     sh 'npm run build'
                 }
             }
@@ -34,7 +32,6 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    // Run tests
                     sh 'npm test'
                 }
             }
@@ -43,7 +40,6 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Deployment logic (e.g., upload to a server or cloud)
                     echo 'Deploying application...'
                 }
             }

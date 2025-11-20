@@ -1,4 +1,3 @@
-// frontend/src/utils/ttsUtils.js
 
 // Global variable for the speech synthesis controller
 let speech = null;
@@ -99,10 +98,6 @@ export const resumeSpeaking = () => {
   }
 };
 
-/**
- * Get available voices
- * @returns {Array} - List of available voices
- */
 export const getVoices = () => {
   return window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
 };

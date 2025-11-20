@@ -1,6 +1,3 @@
-/**
- * Debug utility to identify JSON parsing issues
- */
 export const debugJsonResponse = async (url) => {
     try {
       console.log(`Fetching raw response from: ${url}`);

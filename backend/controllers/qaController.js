@@ -2,7 +2,7 @@ import Video from '../models/Video.js';
 import Groq from 'groq-sdk';
 import say from 'say';
 import dotenv from 'dotenv';
-import * as ChromaDB from 'chromadb'; // Correct import
+import * as ChromaDB from 'chromadb';
 
 dotenv.config();
 
@@ -10,36 +10,13 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY
 });
 
-// At the top of your file, add this variable to track speech state
 let activeSpeech = null;
 let speechTimeoutCheck = null;
 
 // Initialize ChromaDB client
 const chromaClient = new ChromaDB.ChromaClient({
-  path: process.env.CHROMA_URL || "http://eduub-chromadb:8000"  // Match your container name
+  path: process.env.CHROMA_URL || "http://eduub-chromadb:8000"
 });
-
-// Function to setup a timeout to check for abandoned speech
-// const setupSpeechTimeout = () => {
-//   // Clear any existing timeout
-//   if (speechTimeoutCheck) {
-//     clearTimeout(speechTimeoutCheck);
-//   }
-  
-//   // Create new timeout - check every 30 seconds if speech is still active
-//   speechTimeoutCheck = setTimeout(() => {
-//     if (activeSpeech) {
-//       console.log('Speech appears to be abandoned (client disconnected), stopping...');
-//       say.stop();
-//       activeSpeech = null;
-//     }
-//     // Setup the next check
-//     setupSpeechTimeout();
-//   }, 30000); // 30 seconds
-// };
-
-// // Start the check when the server starts
-// setupSpeechTimeout();
 
 // Add this function definition
 async function testChromaConnection() {
@@ -99,8 +76,7 @@ export const startSpeech = async (req, res) => {
 
 // Add this endpoint for handling beacon requests when page is unloaded
 export const stopSpeechBeacon = (req, res) => {
-  // This endpoint doesn't need authentication for cleanup purposes
-  // It's called by the browser's sendBeacon API when the page is unloaded
+
   if (activeSpeech) {
     say.stop();
     activeSpeech = null;
@@ -148,7 +124,7 @@ export const handleQA = async (req, res) => {
       title: video.title,
       teacherId: video.teacher,
       searchType: searchType,
-      currentTime: currentTime // Log the current time for debugging
+      currentTime: currentTime
     });
 
     // 2. Get relevant context from ChromaDB if available
@@ -290,7 +266,7 @@ Question: ${question}`;
     
     const completion = await groq.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
-      model: "gemma2-9b-it",
+      model: "llama-3.1-8b-instant",
       temperature: 0.5,
       max_tokens: 1024,
     });

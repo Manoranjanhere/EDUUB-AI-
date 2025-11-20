@@ -1,12 +1,15 @@
 FROM node:18-slim AS build
 
+# Accept build argument for backend URL
+ARG VITE_BACKEND_URL
+
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
 
-# Create .env file with environment variables
-RUN echo "VITE_BACKEND_URL=https://eduubserver.mano.systems/api" > .env
+# Create .env file with environment variables from build arg
+RUN echo "VITE_BACKEND_URL=${VITE_BACKEND_URL}" > .env
 
 # Build the app
 RUN npm run build
