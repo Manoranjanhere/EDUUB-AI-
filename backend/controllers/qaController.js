@@ -208,7 +208,7 @@ Question: ${question}`;
     
     const completion = await groq.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
-      model: "gemma2-9b-it",
+      model: "llama-3.1-8b-instant",
       temperature: 0.5,
       max_tokens: 1024,
     });
