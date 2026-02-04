@@ -72,8 +72,8 @@ docker run -d --name chromadb -p 8000:8000 -v chroma_data:/chroma/chroma ghcr.io
 Navigate to the backend directory and start the server:
 ```sh
 cd backend
-pip install -r requirements.txt
-python app.py
+npm i
+npm run start
 ```
 
 ### **4. Start Frontend Server**
